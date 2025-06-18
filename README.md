@@ -1,31 +1,29 @@
 # fence-ai
 
-## Running Tests on WSL
+## Running and Testing with Docker Compose
 
-To run the tests on WSL, ensure the following:
+All development and test operations now run entirely in Docker. The host no longer needs a local Python virtual environment.
 
-1. **Activate the Python virtual environment** (venv):
+1. **Build the Docker image**
 
-    ```sh
-    source venv/bin/activate
-    ```
+   ```sh
+   docker compose build
+   ```
 
-2. **Ensure Docker is installed and available** in your WSL environment. You can check this by running:
+2. **Run an interactive shell inside the container** (mounts the project directory):
 
-    ```sh
-    docker --version
-    ```
+   ```sh
+   docker compose run --rm fence-ai
+   ```
 
-   If Docker is not available, see the troubleshooting note below.
+3. **Run the test suite** from inside the container (or pass the command directly):
 
-3. **Run the tests** using pytest:
+   ```sh
+   docker compose run --rm fence-ai pytest
+   ```
 
-    ```sh
-    pytest
-    ```
+### Docker requirements
 
-### Troubleshooting Docker on WSL
+Make sure you have Docker Desktop (or the Docker Engine/CLI) installed and running. For WSL users, enable WSL 2 integration in Docker Desktop and restart your terminal after changing settings.
 
-- If you see a message such as `Docker is not available in this environment. Skipping Docker integration tests.`, make sure Docker Desktop is running and that WSL integration is enabled for your distribution.
-- You may need to restart Docker Desktop or your WSL terminal after enabling integration.
-- For more info, see: [Docker Desktop WSL 2 backend docs](https://docs.docker.com/desktop/wsl/)
+The container mounts your local project folder, so edits on the host are immediately reflected inside the container.
