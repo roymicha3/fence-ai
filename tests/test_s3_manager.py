@@ -105,3 +105,24 @@ def test_download_client_error(tmp_path: Path):
 
     with pytest.raises(mgr_mod.S3DownloadError):
         dm.download("b", "k", tmp_path / "f")
+
+
+def test_list_objects_success():
+    class _ListClient(_DummyClient):
+        def list_objects_v2(self, Bucket, Prefix="", **_kw):  # noqa: N803, ANN001
+            return {"Contents": [{"Key": Prefix + "a.txt"}, {"Key": Prefix + "b.txt"}]}
+
+    dm = mgr_mod.S3DataManager(_DummyAccess(_ListClient()))
+    keys = dm.list_objects("bucket", "folder/")
+    assert keys == ["folder/a.txt", "folder/b.txt"]
+
+
+def test_list_objects_error():
+    class _ErrClient(_DummyClient):
+        def list_objects_v2(self, *a, **kw):  # noqa: D401, ANN001
+            raise Exception("bad")
+
+    dm = mgr_mod.S3DataManager(_DummyAccess(_ErrClient()))
+
+    with pytest.raises(mgr_mod.S3ListError):
+        dm.list_objects("b")

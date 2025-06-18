@@ -14,6 +14,7 @@ from .s3_access import S3Access, S3AccessError
 __all__ = [
     "S3UploadError",
     "S3DownloadError",
+    "S3ListError",
     "S3DataManager",
 ]
 
@@ -24,6 +25,8 @@ class S3UploadError(RuntimeError):
 class S3DownloadError(RuntimeError):
     """Raised when an S3 download fails."""
 
+class S3ListError(RuntimeError):
+    """Raised when listing S3 objects fails."""
 class S3DataManager:
     """Convenience wrapper that exposes higher-level S3 operations.
 
@@ -99,3 +102,24 @@ class S3DataManager:
             return dst
         except Exception as exc:  # noqa: BLE001
             raise S3DownloadError(f"Failed to download s3://{bucket}/{key} to {dst}") from exc
+
+    def list_objects(self, bucket: str, prefix: str | None = None) -> list[str]:
+        """Return a list of object keys in *bucket* starting with *prefix* (if given)."""
+        try:
+            client = self._access.client()
+        except S3AccessError as exc:
+            raise S3ListError("Failed to initialise S3 client") from exc
+
+        try:
+            paginator = client.get_paginator("list_objects_v2") if hasattr(client, "get_paginator") else None
+            if paginator:
+                pages = paginator.paginate(Bucket=bucket, Prefix=prefix or "")
+                keys: list[str] = []
+                for page in pages:
+                    keys.extend(obj["Key"] for obj in page.get("Contents", []))
+                return keys
+            # fallback single call
+            resp = client.list_objects_v2(Bucket=bucket, Prefix=prefix or "")
+            return [obj["Key"] for obj in resp.get("Contents", [])]
+        except Exception as exc:  # noqa: BLE001
+            raise S3ListError(f"Failed to list objects in bucket {bucket}") from exc
