@@ -1,0 +1,10 @@
+version: '3.9'
+services:
+  fence-ai:
+    build: .
+    container_name: fence-ai
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: bash
+    tty: true
