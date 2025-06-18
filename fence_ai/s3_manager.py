@@ -13,6 +13,7 @@ from .s3_access import S3Access, S3AccessError
 
 __all__ = [
     "S3UploadError",
+    "S3DownloadError",
     "S3DataManager",
 ]
 
@@ -20,6 +21,8 @@ __all__ = [
 class S3UploadError(RuntimeError):
     """Raised when a file upload to S3 fails."""
 
+class S3DownloadError(RuntimeError):
+    """Raised when an S3 download fails."""
 
 class S3DataManager:
     """Convenience wrapper that exposes higher-level S3 operations.
@@ -75,3 +78,24 @@ class S3DataManager:
             client.upload_file(str(path), bucket, key, ExtraArgs=extra_args or None)
         except Exception as exc:  # noqa: BLE001 – we re-raise as our domain error
             raise S3UploadError(f"Failed to upload {path} to s3://{bucket}/{key}") from exc
+
+    def download(self, bucket: str, key: str, local_path: str | Path) -> Path:
+        """Download *bucket*/*key* to *local_path*.
+
+        Returns the pathlib.Path to the downloaded file.
+        """
+        dst = Path(local_path)
+        # Ensure destination directory exists
+        if not dst.parent.exists():
+            dst.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            client = self._access.client()
+        except S3AccessError as exc:
+            raise S3DownloadError("Failed to initialise S3 client") from exc
+
+        try:
+            client.download_file(bucket, key, str(dst))
+            return dst
+        except Exception as exc:  # noqa: BLE001
+            raise S3DownloadError(f"Failed to download s3://{bucket}/{key} to {dst}") from exc

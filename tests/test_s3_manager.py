@@ -81,3 +81,27 @@ def test_upload_client_error(tmp_path: Path):
 
     with pytest.raises(mgr_mod.S3UploadError):
         dm.upload("b", "k", dummy_file)
+
+
+def test_download_success(tmp_path: Path):
+    dst = tmp_path / "out.bin"
+
+    class _DownClient(_DummyClient):
+        def download_file(self, bucket, key, filename):  # noqa: ANN001, D401
+            Path(filename).write_text("ok")
+
+    dm = mgr_mod.S3DataManager(_DummyAccess(_DownClient()))
+    ret = dm.download("b", "k", dst)
+    assert ret == dst
+    assert dst.read_text() == "ok"
+
+
+def test_download_client_error(tmp_path: Path):
+    class _ErrClient(_DummyClient):
+        def download_file(self, *a, **kw):  # noqa: D401, ANN001
+            raise Exception("fail")
+
+    dm = mgr_mod.S3DataManager(_DummyAccess(_ErrClient()))
+
+    with pytest.raises(mgr_mod.S3DownloadError):
+        dm.download("b", "k", tmp_path / "f")
