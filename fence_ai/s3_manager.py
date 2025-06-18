@@ -1,0 +1,77 @@
+"""High-level helpers for S3 data operations.
+
+Currently provides *upload* functionality built on top of :class:`fence_ai.S3Access`.
+Designed so that the low-level authentication/initialisation remains encapsulated
+in ``S3Access`` while this module focuses on business-level operations.
+"""
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any, Optional
+
+from .s3_access import S3Access, S3AccessError
+
+__all__ = [
+    "S3UploadError",
+    "S3DataManager",
+]
+
+
+class S3UploadError(RuntimeError):
+    """Raised when a file upload to S3 fails."""
+
+
+class S3DataManager:
+    """Convenience wrapper that exposes higher-level S3 operations.
+
+    Parameters
+    ----------
+    s3_access : Optional[S3Access]
+        If *None*, a default :class:`S3Access` instance is created with its
+        default environment-based credential resolution.
+    """
+
+    def __init__(self, s3_access: Optional[S3Access] = None) -> None:
+        self._access = s3_access or S3Access()
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+    def upload(self, bucket: str, key: str, file_path: str | Path, **extra_args: Any) -> None:
+        """Upload *file_path* to *bucket*/*key*.
+
+        Parameters
+        ----------
+        bucket : str
+            Destination S3 bucket name.
+        key : str
+            Destination object key inside the bucket.
+        file_path : str | pathlib.Path
+            Local filesystem path to the file to upload.
+        **extra_args
+            Forwarded to ``boto3.S3.Client.upload_file`` (e.g. ``ExtraArgs`` for
+            ACL, content-type, etc.).
+
+        Raises
+        ------
+        S3UploadError
+            If the upload fails for any reason including credential or client
+            errors.
+        FileNotFoundError
+            If *file_path* does not exist.
+        """
+        path = Path(file_path)
+        if not path.is_file():
+            raise FileNotFoundError(file_path)
+
+        # Lazily acquire client on every call to make life easier for tests and
+        # to ensure credentials are always fresh (e.g. when using STS tokens).
+        try:
+            client = self._access.client()
+        except S3AccessError as exc:  # re-wrap for clearer context
+            raise S3UploadError("Failed to initialise S3 client") from exc
+
+        try:
+            client.upload_file(str(path), bucket, key, ExtraArgs=extra_args or None)
+        except Exception as exc:  # noqa: BLE001 – we re-raise as our domain error
+            raise S3UploadError(f"Failed to upload {path} to s3://{bucket}/{key}") from exc
