@@ -117,6 +117,31 @@ def test_list_objects_success():
     assert keys == ["folder/a.txt", "folder/b.txt"]
 
 
+def test_delete_success():
+    class _DelClient(_DummyClient):
+        def delete_object(self, Bucket, Key):  # noqa: N803, ANN001
+            # record call for assertion
+            self.calls.append((Bucket, Key))
+
+    c = _DelClient()
+    dm = mgr_mod.S3DataManager(_DummyAccess(c))
+
+    dm.delete("mybucket", "folder/file.txt")
+
+    assert c.calls == [("mybucket", "folder/file.txt")]
+
+
+def test_delete_client_error():
+    class _ErrClient(_DummyClient):
+        def delete_object(self, *a, **kw):  # noqa: D401, ANN001
+            raise Exception("oops")
+
+    dm = mgr_mod.S3DataManager(_DummyAccess(_ErrClient()))
+
+    with pytest.raises(mgr_mod.S3DeleteError):
+        dm.delete("b", "k")
+
+
 def test_list_objects_error():
     class _ErrClient(_DummyClient):
         def list_objects_v2(self, *a, **kw):  # noqa: D401, ANN001

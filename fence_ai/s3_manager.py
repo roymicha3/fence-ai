@@ -15,6 +15,7 @@ __all__ = [
     "S3UploadError",
     "S3DownloadError",
     "S3ListError",
+    "S3DeleteError",
     "S3DataManager",
 ]
 
@@ -27,6 +28,9 @@ class S3DownloadError(RuntimeError):
 
 class S3ListError(RuntimeError):
     """Raised when listing S3 objects fails."""
+
+class S3DeleteError(RuntimeError):
+    """Raised when deleting an S3 object fails."""
 class S3DataManager:
     """Convenience wrapper that exposes higher-level S3 operations.
 
@@ -102,6 +106,32 @@ class S3DataManager:
             return dst
         except Exception as exc:  # noqa: BLE001
             raise S3DownloadError(f"Failed to download s3://{bucket}/{key} to {dst}") from exc
+
+    def delete(self, bucket: str, key: str) -> None:
+        """Delete the object at *bucket*/*key*.
+
+        Parameters
+        ----------
+        bucket : str
+            S3 bucket name.
+        key : str
+            Object key to delete.
+
+        Raises
+        ------
+        S3DeleteError
+            If the delete operation fails for any reason including credential
+            or client errors.
+        """
+        try:
+            client = self._access.client()
+        except S3AccessError as exc:
+            raise S3DeleteError("Failed to initialise S3 client") from exc
+
+        try:
+            client.delete_object(Bucket=bucket, Key=key)
+        except Exception as exc:  # noqa: BLE001
+            raise S3DeleteError(f"Failed to delete s3://{bucket}/{key}") from exc
 
     def list_objects(self, bucket: str, prefix: str | None = None) -> list[str]:
         """Return a list of object keys in *bucket* starting with *prefix* (if given)."""
