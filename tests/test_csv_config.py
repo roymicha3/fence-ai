@@ -165,8 +165,16 @@ class TestConfigGenerator:
     
     def test_init(self):
         """Test ConfigGenerator initialization."""
+        # Test default initialization
         generator = csv_config.ConfigGenerator()
         assert generator is not None
+        assert generator.include_optional is True
+        assert generator.indent == 2
+        
+        # Test custom initialization
+        generator = csv_config.ConfigGenerator(include_optional=False, indent=4)
+        assert generator.include_optional is False
+        assert generator.indent == 4
     
     def test_validate_credentials(self, tmp_path):
         """Test credential validation."""
@@ -194,13 +202,11 @@ class TestConfigGenerator:
         """Test preparation of config data."""
         generator = csv_config.ConfigGenerator()
         
-        # Basic credentials
+        # Test with minimal credentials
         creds = {
             "aws_access_key_id": "AKIAEXAMPLE",
             "aws_secret_access_key": "secret"
         }
-        
-        # Test with just required fields
         config_data = generator._prepare_config_data(creds, "us-west-2")
         assert config_data["aws_access_key_id"] == "AKIAEXAMPLE"
         assert config_data["aws_secret_access_key"] == "secret"
@@ -214,9 +220,21 @@ class TestConfigGenerator:
         # Test with additional kwargs
         config_data = generator._prepare_config_data(creds, "us-east-1", endpoint_url="http://localhost:4566")
         assert config_data["endpoint_url"] == "http://localhost:4566"
+        
+        # Test with include_optional=False
+        generator = csv_config.ConfigGenerator(include_optional=False)
+        config_data = generator._prepare_config_data(creds, "us-east-1")
+        assert "aws_session_token" not in config_data
+        assert "region_name" not in config_data
+        
+        # Test with include_optional=False but explicit kwargs
+        config_data = generator._prepare_config_data(creds, "us-east-1", region_name="eu-west-1")
+        assert "region_name" in config_data
+        assert config_data["region_name"] == "eu-west-1"
     
     def test_generate_json(self, tmp_path):
         """Test JSON config file generation."""
+        # Test with default indent
         generator = csv_config.ConfigGenerator()
         config_data = {
             "aws_access_key_id": "AKIAEXAMPLE",
@@ -231,10 +249,25 @@ class TestConfigGenerator:
         assert output_path.exists()
         loaded_data = json.loads(output_path.read_text())
         assert loaded_data == config_data
+        
+        # Test with custom indent
+        generator = csv_config.ConfigGenerator(indent=4)
+        output_path = tmp_path / "config_indent4.json"
+        generator._generate_json(config_data, output_path)
+        
+        # Verify the file exists and has the correct content
+        assert output_path.exists()
+        loaded_data = json.loads(output_path.read_text())
+        assert loaded_data == config_data
+        
+        # Check that the file content has the correct indentation
+        file_content = output_path.read_text()
+        assert '    "' in file_content  # 4-space indentation
     
     @pytest.mark.skipif(not csv_config._HAS_YAML, reason="PyYAML not installed")
     def test_generate_yaml(self, tmp_path):
         """Test YAML config file generation."""
+        # Test with default indent
         generator = csv_config.ConfigGenerator()
         config_data = {
             "aws_access_key_id": "AKIAEXAMPLE",
@@ -250,6 +283,35 @@ class TestConfigGenerator:
         with open(output_path, "r") as f:
             loaded_data = yaml.safe_load(f)
         assert loaded_data == config_data
+        
+        # Test with custom indent
+        generator = csv_config.ConfigGenerator(indent=4)
+        output_path = tmp_path / "config_indent4.yaml"
+        generator._generate_yaml(config_data, output_path)
+        
+        # Verify the file exists and has the correct content
+        assert output_path.exists()
+        with open(output_path, "r") as f:
+            loaded_data = yaml.safe_load(f)
+        assert loaded_data == config_data
+        
+        # Check indentation in the raw file content
+        file_content = output_path.read_text()
+        # In YAML, indentation matters for nested structures
+        # We'd need a nested structure to properly test indentation
+        nested_data = {
+            "aws": {
+                "credentials": {
+                    "aws_access_key_id": "AKIAEXAMPLE",
+                    "aws_secret_access_key": "secret"
+                }
+            }
+        }
+        nested_output_path = tmp_path / "nested_config.yaml"
+        generator._generate_yaml(nested_data, nested_output_path)
+        nested_content = nested_output_path.read_text()
+        # Check for 4-space indentation
+        assert "    credentials:" in nested_content
     
     def test_generate(self, tmp_path):
         """Test the main generate method."""
@@ -259,7 +321,7 @@ class TestConfigGenerator:
             "aws_secret_access_key": "secret"
         }
         
-        # Test JSON generation
+        # Test JSON generation with default options
         json_path = tmp_path / "config.json"
         result = generator.generate(
             credentials=credentials,
@@ -273,6 +335,36 @@ class TestConfigGenerator:
         loaded_data = json.loads(json_path.read_text())
         assert loaded_data["aws_access_key_id"] == "AKIAEXAMPLE"
         assert loaded_data["region_name"] == "us-west-2"
+        
+        # Test with custom indent
+        json_path_indent4 = tmp_path / "config_indent4.json"
+        result = generator.generate(
+            credentials=credentials,
+            output_path=json_path_indent4,
+            format="json",
+            region="us-west-2",
+            indent=4
+        )
+        
+        assert result == json_path_indent4
+        assert json_path_indent4.exists()
+        file_content = json_path_indent4.read_text()
+        assert '    "' in file_content  # 4-space indentation
+        
+        # Test with include_optional=False
+        json_path_no_optional = tmp_path / "config_no_optional.json"
+        result = generator.generate(
+            credentials=credentials,
+            output_path=json_path_no_optional,
+            format="json",
+            region="us-west-2",
+            include_optional=False
+        )
+        
+        assert result == json_path_no_optional
+        assert json_path_no_optional.exists()
+        loaded_data = json.loads(json_path_no_optional.read_text())
+        assert "region_name" not in loaded_data
         
         # Test with invalid format
         with pytest.raises(ValueError, match="Unsupported format"):

@@ -287,7 +287,16 @@ class CSVCredentialParser:
 class ConfigGenerator:
     """Generator for S3 config files from parsed credentials.
     
-    Supports both JSON and YAML output formats.
+    Supports both JSON and YAML output formats with customizable options.
+    
+    Attributes
+    ----------
+    _SUPPORTED_FORMATS : List[str]
+        List of supported output formats ("json", "yaml")
+    _REQUIRED_FIELDS : List[str]
+        List of required credential fields
+    _OPTIONAL_FIELDS : List[str]
+        List of optional credential fields
     """
     
     # Supported output formats
@@ -299,9 +308,18 @@ class ConfigGenerator:
     # Optional fields in the config file
     _OPTIONAL_FIELDS = ["aws_session_token", "region_name"]
     
-    def __init__(self) -> None:
-        """Initialize the config generator."""
-        pass
+    def __init__(self, include_optional: bool = True, indent: int = 2) -> None:
+        """Initialize the config generator.
+        
+        Parameters
+        ----------
+        include_optional : bool, optional
+            Whether to include optional fields in the output. Default is True.
+        indent : int, optional
+            Indentation level for JSON output. Default is 2.
+        """
+        self.include_optional = include_optional
+        self.indent = indent
     
     def generate(
         self, 
@@ -310,6 +328,8 @@ class ConfigGenerator:
         format: str = "json",
         region: str = "us-east-1",
         secure: bool = True,
+        include_optional: Optional[bool] = None,
+        indent: Optional[int] = None,
         **kwargs: Any
     ) -> Path:
         """Generate a config file from parsed credentials.
@@ -326,6 +346,12 @@ class ConfigGenerator:
             AWS region to use. Default is "us-east-1".
         secure : bool, optional
             Whether to set secure file permissions (0600). Default is True.
+        include_optional : bool, optional
+            Whether to include optional fields in the output. If None, uses the value
+            set in the constructor (default: True).
+        indent : int, optional
+            Indentation level for output. If None, uses the value set in the constructor
+            (default: 2).
         **kwargs : Any
             Additional parameters to include in the config.
             
@@ -347,25 +373,39 @@ class ConfigGenerator:
         # Validate credentials
         self._validate_credentials(credentials)
         
-        # Prepare config data
-        config_data = self._prepare_config_data(credentials, region, **kwargs)
+        # Apply per-call customization options if provided
+        original_include_optional = self.include_optional
+        original_indent = self.indent
         
-        # Create output path if it doesn't exist
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Generate config file in the specified format
-        if format == "json":
-            self._generate_json(config_data, output_path)
-        elif format == "yaml":
-            self._generate_yaml(config_data, output_path)
-        
-        # Set secure file permissions if requested
-        if secure:
-            self._set_secure_permissions(output_path)
-        
-        logger.debug("Generated %s config at %s", format, output_path)
-        return output_path
+        try:
+            if include_optional is not None:
+                self.include_optional = include_optional
+            if indent is not None:
+                self.indent = indent
+            
+            # Prepare config data
+            config_data = self._prepare_config_data(credentials, region, **kwargs)
+            
+            # Create output path if it doesn't exist
+            output_path = Path(output_path)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Generate config file in the specified format
+            if format == "json":
+                self._generate_json(config_data, output_path)
+            elif format == "yaml":
+                self._generate_yaml(config_data, output_path)
+            
+            # Set secure file permissions if requested
+            if secure:
+                self._set_secure_permissions(output_path)
+            
+            logger.debug("Generated %s config at %s", format, output_path)
+            return output_path
+        finally:
+            # Restore original settings
+            self.include_optional = original_include_optional
+            self.indent = original_indent
     
     def _validate_credentials(self, credentials: Dict[str, Any]) -> None:
         """Validate that required credential fields are present.
@@ -408,14 +448,15 @@ class ConfigGenerator:
         for field in self._REQUIRED_FIELDS:
             config_data[field] = credentials[field]
         
-        # Add optional fields if present in credentials
-        for field in self._OPTIONAL_FIELDS:
-            if field in credentials and credentials[field]:
-                config_data[field] = credentials[field]
-        
-        # Add region if not already present
-        if "region_name" not in config_data and region:
-            config_data["region_name"] = region
+        # Add optional fields if enabled and present in credentials
+        if self.include_optional:
+            for field in self._OPTIONAL_FIELDS:
+                if field in credentials and credentials[field]:
+                    config_data[field] = credentials[field]
+            
+            # Add region if not already present
+            if "region_name" not in config_data and region:
+                config_data["region_name"] = region
         
         # Add any additional parameters
         for key, value in kwargs.items():
@@ -441,7 +482,7 @@ class ConfigGenerator:
         """
         try:
             with output_path.open("w", encoding="utf-8") as f:
-                json.dump(config_data, f, indent=2)
+                json.dump(config_data, f, indent=self.indent)
         except OSError as e:
             raise OSError(f"Failed to write JSON config file: {e}") from e
     
@@ -470,7 +511,12 @@ class ConfigGenerator:
         
         try:
             with output_path.open("w", encoding="utf-8") as f:
-                yaml.dump(config_data, f, default_flow_style=False)
+                yaml.dump(
+                    config_data, 
+                    f, 
+                    default_flow_style=False,
+                    indent=self.indent
+                )
         except OSError as e:
             raise OSError(f"Failed to write YAML config file: {e}") from e
     
@@ -500,6 +546,8 @@ def csv_to_config(
     format: str = "json",
     region: str = "us-east-1",
     secure: bool = True,
+    include_optional: bool = True,
+    indent: int = 2,
     **kwargs: Any
 ) -> Path:
     """Convert AWS CSV credentials to a config file.
@@ -516,6 +564,10 @@ def csv_to_config(
         AWS region to use. Default is "us-east-1".
     secure : bool, optional
         Whether to set secure file permissions (0600). Default is True.
+    include_optional : bool, optional
+        Whether to include optional fields in the output. Default is True.
+    indent : int, optional
+        Indentation level for output. Default is 2.
     **kwargs : Any
         Additional parameters to include in the config.
         
@@ -538,7 +590,7 @@ def csv_to_config(
     credentials = parser.parse(csv_path)
     
     # Generate config file
-    generator = ConfigGenerator()
+    generator = ConfigGenerator(include_optional=include_optional, indent=indent)
     return generator.generate(
         credentials=credentials,
         output_path=output_path,

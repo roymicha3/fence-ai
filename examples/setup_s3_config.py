@@ -1,88 +1,99 @@
-"""Example script showing how to convert AWS CSV credentials to config files.
+#!/usr/bin/env python3
+"""Example script to convert AWS CSV credentials to config files.
 
-This script demonstrates how to use the fence-ai CSV to S3 config converter
-to generate configuration files from AWS CSV credential exports.
-
-Usage:
-    python setup_s3_config.py --input=path/to/credentials.csv --output=path/to/config.json
-
-Run with --help for more options.
+This script demonstrates how to use the csv_to_config function to convert
+AWS CSV credential files to JSON or YAML configuration files for use with
+the Fence AI S3 access system.
 """
-from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
+# Add the project root to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  
 from fence_ai.csv_config import csv_to_config
-from fence_ai.core.logger import get_logger
-
-logger = get_logger(__name__)
 
 
-def parse_args() -> argparse.Namespace:
-    """Parse command line arguments."""
+def main():
+    """Convert AWS CSV credentials to a config file."""
     parser = argparse.ArgumentParser(
-        description="Convert AWS CSV credentials to a config file for fence-ai"
+        description="Convert AWS CSV credentials to a config file"
     )
     parser.add_argument(
-        "--input", "-i", 
-        required=True,
-        help="Path to the AWS CSV credentials file"
+        "csv_path", 
+        type=str,
+        help="Path to the CSV file containing AWS credentials"
     )
     parser.add_argument(
-        "--output", "-o", 
-        required=True,
+        "output_path", 
+        type=str,
         help="Path where the config file will be written"
     )
     parser.add_argument(
-        "--format", "-f", 
+        "--format", 
+        type=str, 
         choices=["json", "yaml"], 
         default="json",
         help="Output format (default: json)"
     )
     parser.add_argument(
-        "--region", "-r", 
+        "--region", 
+        type=str, 
         default="us-east-1",
         help="AWS region to use (default: us-east-1)"
     )
     parser.add_argument(
-        "--secure", "-s", 
+        "--insecure", 
         action="store_true",
-        help="Set secure file permissions on the output file"
+        help="Do not set secure file permissions (0600)"
+    )
+    parser.add_argument(
+        "--no-optional", 
+        action="store_true",
+        help="Exclude optional fields from the output"
+    )
+    parser.add_argument(
+        "--indent", 
+        type=int, 
+        default=2,
+        help="Indentation level for output (default: 2)"
+    )
+    parser.add_argument(
+        "--endpoint-url", 
+        type=str,
+        help="Custom S3 endpoint URL (e.g., for LocalStack or MinIO)"
     )
     
-    return parser.parse_args()
-
-
-def main() -> int:
-    """Run the CSV to config converter."""
-    args = parse_args()
+    args = parser.parse_args()
+    
+    # Prepare additional parameters
+    kwargs = {}
+    if args.endpoint_url:
+        kwargs["endpoint_url"] = args.endpoint_url
     
     try:
-        input_path = Path(args.input)
-        output_path = Path(args.output)
-        
-        logger.info("Converting %s to %s", input_path, output_path)
-        
-        config_path = csv_to_config(
-            input_path,
-            output_path,
+        output_path = csv_to_config(
+            csv_path=args.csv_path,
+            output_path=args.output_path,
             format=args.format,
             region=args.region,
-            secure=args.secure
+            secure=not args.insecure,
+            include_optional=not args.no_optional,
+            indent=args.indent,
+            **kwargs
         )
-        
-        logger.info("Successfully created config file at %s", config_path)
+        print(f"Successfully generated {args.format} config at {output_path}")
         return 0
     except FileNotFoundError as e:
-        logger.error("File not found: %s", e)
+        print(f"Error: File not found: {e}", file=sys.stderr)
         return 1
     except ValueError as e:
-        logger.error("Invalid input: %s", e)
+        print(f"Error: Invalid input: {e}", file=sys.stderr)
         return 1
     except Exception as e:
-        logger.exception("Unexpected error: %s", e)
+        print(f"Error: {e}", file=sys.stderr)
         return 1
 
 
