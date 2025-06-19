@@ -16,7 +16,9 @@ pass credentials via environment variables or mount a `.aws/credentials` file.
 
 from __future__ import annotations
 
+import json
 import os
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 import boto3
@@ -50,9 +52,20 @@ class S3Access:
         "region_name",
     }
 
-    def __init__(self, config: Optional[Dict[str, Any]] | None = None):
+    def __init__(self, config: Optional[Dict[str, Any]] | None = None, *, config_file: str | Path | None = None):
+        # Load lowest-precedence configuration from a JSON file if provided
+        self._file_config: Dict[str, Any] = {}
+        if config_file is not None:
+            try:
+                data = json.loads(Path(config_file).read_text())
+                if isinstance(data, dict):
+                    self._file_config = {k: v for k, v in data.items() if k in self._CREDS_KEYS and v}
+            except (OSError, json.JSONDecodeError):
+                # Malformed or unreadable file – treat as empty config
+                pass
+
+        # Credentials supplied directly to the constructor (medium precedence)
         self._config: Dict[str, Any] = config or {}
-        # Validate keys, ignore unknown
         self._config = {k: v for k, v in self._config.items() if k in self._CREDS_KEYS and v}
 
     # ---------------------------------------------------------------------
@@ -74,9 +87,19 @@ class S3Access:
     # Internal helpers
     # ------------------------------------------------------------------
     def _resolved_credentials(self, overrides: Dict[str, Any]) -> Dict[str, Any]:
-        """Merge credentials from overrides > config > env vars."""
+        """Merge credentials from lowest to highest precedence:
+
+        1. File-based config (if provided)
+        2. Environment variables
+        3. Dict supplied to constructor
+        4. Explicit overrides provided to ``client`` / ``resource``.
+
+        Later sources override earlier ones.
+        """
         creds: Dict[str, Any] = {}
-        # Start with env vars.
+        # Start with file config (lowest precedence)
+        creds.update(self._file_config)
+        # Next, environment variables.
         env_map = {
             "aws_access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
             "aws_secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
@@ -84,9 +107,9 @@ class S3Access:
             "region_name": os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION"),
         }
         creds.update({k: v for k, v in env_map.items() if v})
-        # Override with config
+        # Then, config dict supplied to constructor
         creds.update(self._config)
-        # And finally with explicit overrides
+        # Finally, explicit overrides win
         creds.update({k: v for k, v in overrides.items() if k in self._CREDS_KEYS and v})
         return creds
 
