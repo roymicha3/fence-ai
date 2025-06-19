@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from types import ModuleType
 from pathlib import Path
 from typing import Any
@@ -18,11 +19,10 @@ if "botocore.exceptions" not in sys.modules:
     exc_mod = ModuleType("botocore.exceptions")
     sys.modules["botocore.exceptions"] = exc_mod
 
-# Add project root to import path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Ensure fence_ai package is importable
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
-from fence_ai.s3_manager import S3DataManager  # noqa: E402  pylint: disable=wrong-import-position
+from fence_ai.storage.s3_manager import S3DataManager  # noqa: E402  pylint: disable=wrong-import-position
 
 
 class _DummyClient:  # noqa: D101
