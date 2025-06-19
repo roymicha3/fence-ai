@@ -31,9 +31,9 @@ import pytest
 import importlib
 
 from fence_ai.config_core import Config
-from fence_ai.logger import configure as configure_logger, get_logger
-from fence_ai.s3_access import S3Access, S3AccessError
-from fence_ai.s3_manager import S3DataManager
+from fence_ai.core.logger import configure as configure_logger, get_logger
+from fence_ai.storage.s3_access import S3Access, S3AccessError
+from fence_ai.storage.s3_manager import S3DataManager
 
 # ---------------------------------------------------------------------------
 # Config tests

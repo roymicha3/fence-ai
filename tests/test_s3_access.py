@@ -51,8 +51,8 @@ except ModuleNotFoundError:  # fallback if botocore isn't installed in local ven
     class NoCredentialsError(Exception):
         """Local stub when botocore is absent."""
 
-import fence_ai.s3_access as s3_module
-from fence_ai import S3Access, S3AccessError
+import fence_ai.storage.s3_access
+from fence_ai.storage.s3_access import S3Access, S3AccessError
 
 
 class _DummySession:  # helper – emulates minimal boto3.Session API
@@ -85,7 +85,7 @@ def _patch_session(monkeypatch, error: Exception | None = None):
         return _DummySession(**kwargs)
 
     stub = type("_Boto3Stub", (), {"Session": staticmethod(_factory)})
-    monkeypatch.setattr(s3_module, "boto3", stub, raising=False)
+    monkeypatch.setattr(fence_ai.storage.s3_access, "boto3", stub, raising=False)
 
 
 # ---------------------------------------------------------------------------

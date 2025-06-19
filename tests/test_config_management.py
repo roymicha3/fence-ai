@@ -35,8 +35,9 @@ if "boto3" not in sys.modules:
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-import fence_ai.s3_access as s3_module  # noqa: E402  pylint: disable=wrong-import-position
-from fence_ai import S3Access, Config  # noqa: E402  pylint: disable=wrong-import-position
+import fence_ai.storage.s3_access
+from fence_ai.storage.s3_access import S3Access
+from fence_ai.core.config import Config
 
 
 class _DummySession:  # noqa: D101
@@ -49,7 +50,7 @@ class _DummySession:  # noqa: D101
 
 def _patch_session(monkeypatch):  # noqa: D401
     stub = type("_Boto3Stub", (), {"Session": staticmethod(lambda **kw: _DummySession(**kw))})
-    monkeypatch.setattr(s3_module, "boto3", stub, raising=False)
+    monkeypatch.setattr(fence_ai.storage.s3_access, "boto3", stub, raising=False)
 
 
 # ---------------------------------------------------------------------------

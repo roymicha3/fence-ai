@@ -7,8 +7,8 @@ from types import ModuleType
 
 import pytest
 
-from fence_ai.s3_manager import S3DataManager, S3UploadError, S3DownloadError, S3DeleteError, S3ListError
-from fence_ai.s3_access import S3AccessError
+from fence_ai.storage.s3_manager import S3DataManager, S3UploadError, S3DownloadError, S3DeleteError, S3ListError
+from fence_ai.storage.s3_access import S3AccessError
 
 
 class _FailAccess:  # noqa: D101

@@ -1,26 +1,16 @@
-"""Project-wide logging helper for Fence-AI.
+"""Project-wide logging helper for Fence-AI (new location).
 
-Goals
------
-1. Single point of configuration so every package component produces
-   consistent, well-formatted logs.
-2. No mandatory third-party dependencies – optional extras (colorlog or
-   python-json-logger) are auto-detected and used if present.
-3. Runtime configurability via environment variables so Docker users can tweak
-   verbosity/format without rebuilding the image.
-4. Provide a tiny public API: ``configure`` (idempotent) and ``get_logger``.
-
-Environment variables
-.....................
-FENCE_LOG_LEVEL   – DEBUG, INFO, WARNING (default INFO)
-FENCE_LOG_FORMAT  – plain | color | json  (default plain)
+Identical functionality to the old ``fence_ai.logger`` module but now lives in
+``fence_ai.core.logger`` for better package structure.  External callers should
+import from this path going forward.  A backward-compat shim is kept in the old
+location.
 """
+
 from __future__ import annotations
 
 import logging
 import logging.config
 import os
-from types import ModuleType
 from typing import Any, Dict, Optional
 
 _LOGGERS: Dict[str, logging.Logger] = {}
@@ -37,7 +27,7 @@ def _detect_json_formatter() -> Optional[str]:
     """Return import path of a JSON formatter if available, else *None*."""
 
     try:
-        import pythonjsonlogger  # noqa: F401
+        import pythonjsonlogger  # noqa: F401  # type: ignore
 
         return "pythonjsonlogger.jsonlogger.JsonFormatter"
     except ModuleNotFoundError:
@@ -48,7 +38,7 @@ def _detect_color_formatter() -> Optional[str]:
     """Return import path of a color formatter if available, else *None*."""
 
     try:
-        import colorlog  # noqa: F401
+        import colorlog  # noqa: F401  # type: ignore
 
         return "colorlog.ColoredFormatter"
     except ModuleNotFoundError:
@@ -60,13 +50,7 @@ def _detect_color_formatter() -> Optional[str]:
 # ---------------------------------------------------------------------------
 
 def configure(force: bool = False) -> None:  # noqa: D401
-    """Configure root logger. Safe to call multiple times.
-
-    Parameters
-    ----------
-    force : bool, default False
-        If *True*, apply configuration even if it was already configured.
-    """
+    """Configure root logger. Safe to call multiple times."""
 
     global _CONFIGURED  # noqa: PLW0603
 
@@ -77,7 +61,6 @@ def configure(force: bool = False) -> None:  # noqa: D401
     level = getattr(logging, level_name, logging.INFO)
 
     fmt_choice = os.getenv("FENCE_LOG_FORMAT", "plain").lower()
-    fmt: str
     fmt_config: Dict[str, Any] = {}
 
     if fmt_choice == "json":
@@ -115,9 +98,7 @@ def configure(force: bool = False) -> None:  # noqa: D401
     logging_config = {
         "version": 1,
         "disable_existing_loggers": False,
-        "formatters": {
-            "default": fmt_config,
-        },
+        "formatters": {"default": fmt_config},
         "handlers": {
             "console": {
                 "class": "logging.StreamHandler",
@@ -125,10 +106,7 @@ def configure(force: bool = False) -> None:  # noqa: D401
                 "formatter": "default",
             }
         },
-        "root": {
-            "level": level,
-            "handlers": ["console"],
-        },
+        "root": {"level": level, "handlers": ["console"]},
     }
 
     logging.config.dictConfig(logging_config)

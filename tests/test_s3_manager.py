@@ -25,8 +25,10 @@ if "botocore.exceptions" not in sys.modules:
     exc_mod.ClientError = ClientError
     sys.modules["botocore.exceptions"] = exc_mod
 
-import fence_ai.s3_manager as mgr_mod
-from fence_ai import S3Access
+import fence_ai.storage.s3_access
+import fence_ai.storage.s3_manager
+from fence_ai.storage.s3_manager import S3DataManager, S3UploadError, S3DownloadError, S3DeleteError, S3ListError
+from fence_ai.storage.s3_access import S3Access
 
 
 class _DummyClient:  # noqa: D101
@@ -54,7 +56,7 @@ def test_upload_success(tmp_path: Path):
     dummy_file.write_text("payload")
 
     c = _DummyClient()
-    dm = mgr_mod.S3DataManager(_DummyAccess(c))
+    dm = S3DataManager(_DummyAccess(c))
 
     dm.upload("mybucket", "folder/data.txt", dummy_file)
 
@@ -63,7 +65,7 @@ def test_upload_success(tmp_path: Path):
 
 def test_upload_nonexistent_file(tmp_path: Path):
     c = _DummyClient()
-    dm = mgr_mod.S3DataManager(_DummyAccess(c))
+    dm = S3DataManager(_DummyAccess(c))
 
     with pytest.raises(FileNotFoundError):
         dm.upload("b", "k", tmp_path / "missing.bin")
@@ -77,9 +79,9 @@ def test_upload_client_error(tmp_path: Path):
         def upload_file(self, *a, **kw):  # noqa: D401, ANN001
             raise Exception("boom")
 
-    dm = mgr_mod.S3DataManager(_DummyAccess(_ErrClient()))
+    dm = S3DataManager(_DummyAccess(_ErrClient()))
 
-    with pytest.raises(mgr_mod.S3UploadError):
+    with pytest.raises(S3UploadError):
         dm.upload("b", "k", dummy_file)
 
 
@@ -90,7 +92,7 @@ def test_download_success(tmp_path: Path):
         def download_file(self, bucket, key, filename):  # noqa: ANN001, D401
             Path(filename).write_text("ok")
 
-    dm = mgr_mod.S3DataManager(_DummyAccess(_DownClient()))
+    dm = S3DataManager(_DummyAccess(_DownClient()))
     ret = dm.download("b", "k", dst)
     assert ret == dst
     assert dst.read_text() == "ok"
@@ -101,9 +103,9 @@ def test_download_client_error(tmp_path: Path):
         def download_file(self, *a, **kw):  # noqa: D401, ANN001
             raise Exception("fail")
 
-    dm = mgr_mod.S3DataManager(_DummyAccess(_ErrClient()))
+    dm = S3DataManager(_DummyAccess(_ErrClient()))
 
-    with pytest.raises(mgr_mod.S3DownloadError):
+    with pytest.raises(S3DownloadError):
         dm.download("b", "k", tmp_path / "f")
 
 
@@ -112,7 +114,7 @@ def test_list_objects_success():
         def list_objects_v2(self, Bucket, Prefix="", **_kw):  # noqa: N803, ANN001
             return {"Contents": [{"Key": Prefix + "a.txt"}, {"Key": Prefix + "b.txt"}]}
 
-    dm = mgr_mod.S3DataManager(_DummyAccess(_ListClient()))
+    dm = S3DataManager(_DummyAccess(_ListClient()))
     keys = dm.list_objects("bucket", "folder/")
     assert keys == ["folder/a.txt", "folder/b.txt"]
 
@@ -124,7 +126,7 @@ def test_delete_success():
             self.calls.append((Bucket, Key))
 
     c = _DelClient()
-    dm = mgr_mod.S3DataManager(_DummyAccess(c))
+    dm = S3DataManager(_DummyAccess(c))
 
     dm.delete("mybucket", "folder/file.txt")
 
@@ -136,9 +138,9 @@ def test_delete_client_error():
         def delete_object(self, *a, **kw):  # noqa: D401, ANN001
             raise Exception("oops")
 
-    dm = mgr_mod.S3DataManager(_DummyAccess(_ErrClient()))
+    dm = S3DataManager(_DummyAccess(_ErrClient()))
 
-    with pytest.raises(mgr_mod.S3DeleteError):
+    with pytest.raises(S3DeleteError):
         dm.delete("b", "k")
 
 
@@ -147,7 +149,7 @@ def test_list_objects_error():
         def list_objects_v2(self, *a, **kw):  # noqa: D401, ANN001
             raise Exception("bad")
 
-    dm = mgr_mod.S3DataManager(_DummyAccess(_ErrClient()))
+    dm = S3DataManager(_DummyAccess(_ErrClient()))
 
-    with pytest.raises(mgr_mod.S3ListError):
+    with pytest.raises(S3ListError):
         dm.list_objects("b")
