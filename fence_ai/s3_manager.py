@@ -85,6 +85,7 @@ class S3DataManager:
             client = self._access.client()
         except S3AccessError as exc:  # re-wrap for clearer context
             logger.exception("S3 client initialisation failed")
+            logger.exception("S3 client initialisation failed")
             raise S3UploadError("Failed to initialise S3 client") from exc
 
         try:
@@ -107,12 +108,14 @@ class S3DataManager:
         try:
             client = self._access.client()
         except S3AccessError as exc:
+            logger.exception("S3 client initialisation failed")
             raise S3DownloadError("Failed to initialise S3 client") from exc
 
         try:
             client.download_file(bucket, key, str(dst))
             return dst
         except Exception as exc:  # noqa: BLE001
+            logger.exception("Download failed")
             raise S3DownloadError(f"Failed to download s3://{bucket}/{key} to {dst}") from exc
 
     def delete(self, bucket: str, key: str) -> None:
@@ -135,11 +138,13 @@ class S3DataManager:
         try:
             client = self._access.client()
         except S3AccessError as exc:
+            logger.exception("S3 client initialisation failed")
             raise S3DeleteError("Failed to initialise S3 client") from exc
 
         try:
             client.delete_object(Bucket=bucket, Key=key)
         except Exception as exc:  # noqa: BLE001
+            logger.exception("Delete failed")
             raise S3DeleteError(f"Failed to delete s3://{bucket}/{key}") from exc
 
     def list_objects(self, bucket: str, prefix: str | None = None) -> list[str]:
@@ -148,6 +153,7 @@ class S3DataManager:
         try:
             client = self._access.client()
         except S3AccessError as exc:
+            logger.exception("S3 client initialisation failed")
             raise S3ListError("Failed to initialise S3 client") from exc
 
         try:
@@ -162,4 +168,5 @@ class S3DataManager:
             resp = client.list_objects_v2(Bucket=bucket, Prefix=prefix or "")
             return [obj["Key"] for obj in resp.get("Contents", [])]
         except Exception as exc:  # noqa: BLE001
+            logger.exception("List objects failed")
             raise S3ListError(f"Failed to list objects in bucket {bucket}") from exc
