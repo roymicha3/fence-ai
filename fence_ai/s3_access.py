@@ -22,7 +22,11 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import boto3
+from .logger import get_logger
 from botocore.exceptions import BotoCoreError, NoCredentialsError, ClientError
+
+
+logger = get_logger(__name__)
 
 
 class S3AccessError(RuntimeError):
@@ -77,10 +81,12 @@ class S3Access:
         Any keyword arguments passed here override config/env vars. You can use
         this to request a specific region or provide temporary credentials.
         """
+        logger.debug("Creating S3 client with overrides=%s", {k: '***' if 'secret' in k else v for k, v in overrides.items()})
         return self._create("client", **overrides)
 
     def resource(self, **overrides: Any):
         """Return a boto3 S3 *resource*."""
+        logger.debug("Creating S3 resource with overrides=%s", {k: '***' if 'secret' in k else v for k, v in overrides.items()})
         return self._create("resource", **overrides)
 
     # ------------------------------------------------------------------
@@ -124,4 +130,5 @@ class S3Access:
                 return session.resource("s3", region_name=creds.get("region_name"))
             raise ValueError(f"Unsupported kind: {kind}")
         except (NoCredentialsError, BotoCoreError, ClientError) as exc:
+            logger.exception("Failed to create S3 %s: %s", kind, exc)
             raise S3AccessError("Failed to create S3 access: check credentials") from exc

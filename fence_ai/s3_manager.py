@@ -7,6 +7,7 @@ in ``S3Access`` while this module focuses on business-level operations.
 from __future__ import annotations
 
 from pathlib import Path
+from .logger import get_logger
 from typing import Any, Optional
 
 from .s3_access import S3Access, S3AccessError
@@ -31,6 +32,9 @@ class S3ListError(RuntimeError):
 
 class S3DeleteError(RuntimeError):
     """Raised when deleting an S3 object fails."""
+logger = get_logger(__name__)
+
+
 class S3DataManager:
     """Convenience wrapper that exposes higher-level S3 operations.
 
@@ -70,6 +74,7 @@ class S3DataManager:
         FileNotFoundError
             If *file_path* does not exist.
         """
+        logger.info("Uploading %s to s3://%s/%s", file_path, bucket, key)
         path = Path(file_path)
         if not path.is_file():
             raise FileNotFoundError(file_path)
@@ -79,14 +84,17 @@ class S3DataManager:
         try:
             client = self._access.client()
         except S3AccessError as exc:  # re-wrap for clearer context
+            logger.exception("S3 client initialisation failed")
             raise S3UploadError("Failed to initialise S3 client") from exc
 
         try:
             client.upload_file(str(path), bucket, key, ExtraArgs=extra_args or None)
         except Exception as exc:  # noqa: BLE001 – we re-raise as our domain error
+            logger.exception("Upload failed")
             raise S3UploadError(f"Failed to upload {path} to s3://{bucket}/{key}") from exc
 
     def download(self, bucket: str, key: str, local_path: str | Path) -> Path:
+        logger.info("Downloading s3://%s/%s to %s", bucket, key, local_path)
         """Download *bucket*/*key* to *local_path*.
 
         Returns the pathlib.Path to the downloaded file.
@@ -108,6 +116,7 @@ class S3DataManager:
             raise S3DownloadError(f"Failed to download s3://{bucket}/{key} to {dst}") from exc
 
     def delete(self, bucket: str, key: str) -> None:
+        logger.info("Deleting s3://%s/%s", bucket, key)
         """Delete the object at *bucket*/*key*.
 
         Parameters
@@ -134,6 +143,7 @@ class S3DataManager:
             raise S3DeleteError(f"Failed to delete s3://{bucket}/{key}") from exc
 
     def list_objects(self, bucket: str, prefix: str | None = None) -> list[str]:
+        logger.info("Listing objects in %s with prefix=%s", bucket, prefix)
         """Return a list of object keys in *bucket* starting with *prefix* (if given)."""
         try:
             client = self._access.client()
