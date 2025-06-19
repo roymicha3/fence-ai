@@ -7,10 +7,10 @@ in ``S3Access`` while this module focuses on business-level operations.
 from __future__ import annotations
 
 from pathlib import Path
-from .logger import get_logger
+from fence_ai.logger import get_logger
 from typing import Any, Optional
 
-from .s3_access import S3Access, S3AccessError
+from fence_ai.s3_access import S3Access, S3AccessError
 
 __all__ = [
     "S3UploadError",

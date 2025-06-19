@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import boto3
-from .logger import get_logger
+from fence_ai.logger import get_logger
 from botocore.exceptions import BotoCoreError, NoCredentialsError, ClientError
 
 
