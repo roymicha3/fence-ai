@@ -15,12 +15,12 @@ import json
 import os
 import warnings
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Union
 
 try:
-    import yaml  # type: ignore
+    import yaml
     _HAS_YAML = True
-except ModuleNotFoundError:  # pragma: no cover – optional dependency
+except (ImportError, ModuleNotFoundError):  # pragma: no cover – optional dependency
     _HAS_YAML = False
 
 from fence_ai.core.logger import get_logger
@@ -290,6 +290,15 @@ class ConfigGenerator:
     Supports both JSON and YAML output formats.
     """
     
+    # Supported output formats
+    _SUPPORTED_FORMATS = ["json", "yaml"]
+    
+    # Required fields in the config file
+    _REQUIRED_FIELDS = ["aws_access_key_id", "aws_secret_access_key"]
+    
+    # Optional fields in the config file
+    _OPTIONAL_FIELDS = ["aws_session_token", "region_name"]
+    
     def __init__(self) -> None:
         """Initialize the config generator."""
         pass
@@ -300,6 +309,7 @@ class ConfigGenerator:
         output_path: str | Path, 
         format: str = "json",
         region: str = "us-east-1",
+        secure: bool = True,
         **kwargs: Any
     ) -> Path:
         """Generate a config file from parsed credentials.
@@ -314,6 +324,8 @@ class ConfigGenerator:
             Output format, either "json" or "yaml". Default is "json".
         region : str, optional
             AWS region to use. Default is "us-east-1".
+        secure : bool, optional
+            Whether to set secure file permissions (0600). Default is True.
         **kwargs : Any
             Additional parameters to include in the config.
             
@@ -327,16 +339,167 @@ class ConfigGenerator:
         ValueError
             If the format is not supported or credentials are invalid.
         """
-        # Implementation will be added in Task 5
-        logger.debug("Generating %s config at %s", format, output_path)
-        return Path(output_path)
+        # Validate format
+        format = format.lower()
+        if format not in self._SUPPORTED_FORMATS:
+            raise ValueError(f"Unsupported format: {format}. Must be one of {self._SUPPORTED_FORMATS}")
+        
+        # Validate credentials
+        self._validate_credentials(credentials)
+        
+        # Prepare config data
+        config_data = self._prepare_config_data(credentials, region, **kwargs)
+        
+        # Create output path if it doesn't exist
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Generate config file in the specified format
+        if format == "json":
+            self._generate_json(config_data, output_path)
+        elif format == "yaml":
+            self._generate_yaml(config_data, output_path)
+        
+        # Set secure file permissions if requested
+        if secure:
+            self._set_secure_permissions(output_path)
+        
+        logger.debug("Generated %s config at %s", format, output_path)
+        return output_path
+    
+    def _validate_credentials(self, credentials: Dict[str, Any]) -> None:
+        """Validate that required credential fields are present.
+        
+        Parameters
+        ----------
+        credentials : Dict[str, Any]
+            Dictionary of credential values.
+            
+        Raises
+        ------
+        ValueError
+            If required fields are missing.
+        """
+        missing = [field for field in self._REQUIRED_FIELDS if field not in credentials]
+        if missing:
+            raise ValueError(f"Missing required credential fields: {', '.join(missing)}")
+    
+    def _prepare_config_data(self, credentials: Dict[str, Any], region: str, **kwargs: Any) -> Dict[str, Any]:
+        """Prepare the configuration data from credentials and additional parameters.
+        
+        Parameters
+        ----------
+        credentials : Dict[str, Any]
+            Dictionary of credential values.
+        region : str
+            AWS region to use.
+        **kwargs : Any
+            Additional parameters to include in the config.
+            
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary of configuration data.
+        """
+        # Start with credentials
+        config_data = {}
+        
+        # Add required fields
+        for field in self._REQUIRED_FIELDS:
+            config_data[field] = credentials[field]
+        
+        # Add optional fields if present in credentials
+        for field in self._OPTIONAL_FIELDS:
+            if field in credentials and credentials[field]:
+                config_data[field] = credentials[field]
+        
+        # Add region if not already present
+        if "region_name" not in config_data and region:
+            config_data["region_name"] = region
+        
+        # Add any additional parameters
+        for key, value in kwargs.items():
+            if value is not None:
+                config_data[key] = value
+        
+        return config_data
+    
+    def _generate_json(self, config_data: Dict[str, Any], output_path: Path) -> None:
+        """Generate a JSON config file.
+        
+        Parameters
+        ----------
+        config_data : Dict[str, Any]
+            Dictionary of configuration data.
+        output_path : Path
+            Path where the config file will be written.
+            
+        Raises
+        ------
+        OSError
+            If the file cannot be written.
+        """
+        try:
+            with output_path.open("w", encoding="utf-8") as f:
+                json.dump(config_data, f, indent=2)
+        except OSError as e:
+            raise OSError(f"Failed to write JSON config file: {e}") from e
+    
+    def _generate_yaml(self, config_data: Dict[str, Any], output_path: Path) -> None:
+        """Generate a YAML config file.
+        
+        Parameters
+        ----------
+        config_data : Dict[str, Any]
+            Dictionary of configuration data.
+        output_path : Path
+            Path where the config file will be written.
+            
+        Raises
+        ------
+        ImportError
+            If the PyYAML package is not installed.
+        OSError
+            If the file cannot be written.
+        """
+        if not _HAS_YAML:
+            raise ImportError(
+                "PyYAML is required for YAML output. "
+                "Install it with 'pip install pyyaml'."
+            )
+        
+        try:
+            with output_path.open("w", encoding="utf-8") as f:
+                yaml.dump(config_data, f, default_flow_style=False)
+        except OSError as e:
+            raise OSError(f"Failed to write YAML config file: {e}") from e
+    
+    def _set_secure_permissions(self, file_path: Path) -> None:
+        """Set secure file permissions (0600) on the config file.
+        
+        Parameters
+        ----------
+        file_path : Path
+            Path to the config file.
+            
+        Notes
+        -----
+        This only works on Unix-like systems. On Windows, this is a no-op.
+        """
+        try:
+            # 0o600 = read/write for owner only
+            os.chmod(file_path, 0o600)
+            logger.debug("Set secure permissions on %s", file_path)
+        except OSError as e:
+            logger.warning("Failed to set secure permissions on %s: %s", file_path, e)
 
 
 def csv_to_config(
-    csv_path: str | Path, 
-    output_path: str | Path, 
+    csv_path: str | Path,
+    output_path: str | Path,
     format: str = "json",
     region: str = "us-east-1",
+    secure: bool = True,
     **kwargs: Any
 ) -> Path:
     """Convert AWS CSV credentials to a config file.
@@ -351,6 +514,8 @@ def csv_to_config(
         Output format, either "json" or "yaml". Default is "json".
     region : str, optional
         AWS region to use. Default is "us-east-1".
+    secure : bool, optional
+        Whether to set secure file permissions (0600). Default is True.
     **kwargs : Any
         Additional parameters to include in the config.
         
@@ -361,19 +526,24 @@ def csv_to_config(
         
     Raises
     ------
-    FileNotFoundError
-        If the CSV file does not exist.
     ValueError
-        If the CSV format is invalid or the output format is not supported.
+        If the CSV file is invalid or the format is not supported.
+    OSError
+        If the config file cannot be written.
     """
-    parser = CSVCredentialParser()
-    generator = ConfigGenerator()
+    logger.debug("Converting %s to %s config at %s", csv_path, format, output_path)
     
+    # Parse CSV credentials
+    parser = CSVCredentialParser()
     credentials = parser.parse(csv_path)
+    
+    # Generate config file
+    generator = ConfigGenerator()
     return generator.generate(
-        credentials, 
-        output_path, 
+        credentials=credentials,
+        output_path=output_path,
         format=format,
         region=region,
+        secure=secure,
         **kwargs
     )

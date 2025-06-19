@@ -12,7 +12,14 @@ import pytest
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import fence_ai.csv_config as csv_config
 from fence_ai.csv_config import CSVCredentialParser, ConfigGenerator, csv_to_config
+
+try:
+    import yaml
+    _HAS_YAML = True
+except ImportError:
+    _HAS_YAML = False
 
 
 @pytest.fixture
@@ -154,14 +161,126 @@ class TestCSVCredentialParser:
 
 
 class TestConfigGenerator:
-    """Test the ConfigGenerator class."""
+    """Tests for the ConfigGenerator class."""
     
     def test_init(self):
-        """Test generator initialization."""
-        generator = ConfigGenerator()
+        """Test ConfigGenerator initialization."""
+        generator = csv_config.ConfigGenerator()
         assert generator is not None
     
-    # Additional tests will be implemented as part of Task 5
+    def test_validate_credentials(self, tmp_path):
+        """Test credential validation."""
+        generator = csv_config.ConfigGenerator()
+        
+        # Valid credentials
+        valid_creds = {
+            "aws_access_key_id": "AKIAEXAMPLE",
+            "aws_secret_access_key": "secret"
+        }
+        # This should not raise an exception
+        generator._validate_credentials(valid_creds)
+        
+        # Invalid credentials - missing access key
+        invalid_creds = {"aws_secret_access_key": "secret"}
+        with pytest.raises(ValueError, match="Missing required credential fields"):
+            generator._validate_credentials(invalid_creds)
+        
+        # Invalid credentials - missing secret key
+        invalid_creds = {"aws_access_key_id": "AKIAEXAMPLE"}
+        with pytest.raises(ValueError, match="Missing required credential fields"):
+            generator._validate_credentials(invalid_creds)
+    
+    def test_prepare_config_data(self):
+        """Test preparation of config data."""
+        generator = csv_config.ConfigGenerator()
+        
+        # Basic credentials
+        creds = {
+            "aws_access_key_id": "AKIAEXAMPLE",
+            "aws_secret_access_key": "secret"
+        }
+        
+        # Test with just required fields
+        config_data = generator._prepare_config_data(creds, "us-west-2")
+        assert config_data["aws_access_key_id"] == "AKIAEXAMPLE"
+        assert config_data["aws_secret_access_key"] == "secret"
+        assert config_data["region_name"] == "us-west-2"
+        
+        # Test with optional fields
+        creds["aws_session_token"] = "token123"
+        config_data = generator._prepare_config_data(creds, "us-east-1")
+        assert config_data["aws_session_token"] == "token123"
+        
+        # Test with additional kwargs
+        config_data = generator._prepare_config_data(creds, "us-east-1", endpoint_url="http://localhost:4566")
+        assert config_data["endpoint_url"] == "http://localhost:4566"
+    
+    def test_generate_json(self, tmp_path):
+        """Test JSON config file generation."""
+        generator = csv_config.ConfigGenerator()
+        config_data = {
+            "aws_access_key_id": "AKIAEXAMPLE",
+            "aws_secret_access_key": "secret",
+            "region_name": "us-east-1"
+        }
+        
+        output_path = tmp_path / "config.json"
+        generator._generate_json(config_data, output_path)
+        
+        # Verify the file exists and has the correct content
+        assert output_path.exists()
+        loaded_data = json.loads(output_path.read_text())
+        assert loaded_data == config_data
+    
+    @pytest.mark.skipif(not csv_config._HAS_YAML, reason="PyYAML not installed")
+    def test_generate_yaml(self, tmp_path):
+        """Test YAML config file generation."""
+        generator = csv_config.ConfigGenerator()
+        config_data = {
+            "aws_access_key_id": "AKIAEXAMPLE",
+            "aws_secret_access_key": "secret",
+            "region_name": "us-east-1"
+        }
+        
+        output_path = tmp_path / "config.yaml"
+        generator._generate_yaml(config_data, output_path)
+        
+        # Verify the file exists and has the correct content
+        assert output_path.exists()
+        with open(output_path, "r") as f:
+            loaded_data = yaml.safe_load(f)
+        assert loaded_data == config_data
+    
+    def test_generate(self, tmp_path):
+        """Test the main generate method."""
+        generator = csv_config.ConfigGenerator()
+        credentials = {
+            "aws_access_key_id": "AKIAEXAMPLE",
+            "aws_secret_access_key": "secret"
+        }
+        
+        # Test JSON generation
+        json_path = tmp_path / "config.json"
+        result = generator.generate(
+            credentials=credentials,
+            output_path=json_path,
+            format="json",
+            region="us-west-2"
+        )
+        
+        assert result == json_path
+        assert json_path.exists()
+        loaded_data = json.loads(json_path.read_text())
+        assert loaded_data["aws_access_key_id"] == "AKIAEXAMPLE"
+        assert loaded_data["region_name"] == "us-west-2"
+        
+        # Test with invalid format
+        with pytest.raises(ValueError, match="Unsupported format"):
+            generator.generate(
+                credentials=credentials,
+                output_path=tmp_path / "invalid.txt",
+                format="txt"
+            )
 
 
 class TestCSVToConfig:
