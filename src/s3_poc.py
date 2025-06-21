@@ -1,16 +1,16 @@
-from data.aws.aws_client import S3Client
-from config.storage_config_loader import load_storage_config
+from pathlib import Path
+from storage.providers.s3_backend import S3Backend
 from botocore.exceptions import BotoCoreError, ClientError
 
-BUCKET_CFG = load_storage_config("configs/bucket.yaml")
-client = S3Client()
+CFG = {"cred_src": "configs/Server_accessKeys.csv", "cfg_src": "configs/bucket.yaml"}
+backend = S3Backend(**CFG)
 
 if __name__ == "__main__":
     
     try:
-        client.upload_file("demo.txt", BUCKET_CFG["name"], "demo.txt")
-        client.download_file(BUCKET_CFG["name"], "demo.txt", "downloaded_demo.txt")
-        client.delete_file(BUCKET_CFG["name"], "demo.txt")
+        backend.upload_file(Path("demo.txt"), "demo.txt")
+        backend.download_file("demo.txt", Path("downloaded_demo.txt"))
+        backend.delete_file("demo.txt")
         print("Upload, download, and delete completed successfully.")
     
     except (BotoCoreError, ClientError) as exc:
