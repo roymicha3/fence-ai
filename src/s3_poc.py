@@ -12,8 +12,8 @@ from pathlib import Path
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from credentials_loader import load_credentials
-from storage_config_loader import load_storage_config
+from creds.credentials_loader import load_credentials
+from configs.storage_config_loader import load_storage_config
 
 # Default paths (can be overridden)
 CSV_PATH = Path("configs/Server_accessKeys.csv")
