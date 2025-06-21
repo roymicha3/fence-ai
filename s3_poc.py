@@ -12,29 +12,15 @@ from pathlib import Path
 import csv
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
+from credentials_loader import load_credentials
 
 # Path to the credentials CSV (adjust if necessary)
-CSV_PATH = Path("configs/Server_accessKeys.csv")
+CSV_PATH = Path("configs/Server_accessKeys.csv")  # default
 
-def get_s3_client(csv_path: Path = CSV_PATH):
+def get_s3_client(config_path: Path | str = CSV_PATH):
     """Return a boto3 S3 client configured with credentials from *csv_path*."""
-    with csv_path.open(newline="") as fh:
-        raw = next(csv.DictReader(fh))
-
-    # Normalize header names: lowercase, strip, replace spaces with underscores
-    normalized = {k.strip().lstrip('\ufeff').lower().replace(' ', '_'): v.strip() for k, v in raw.items()}
-
-    access_key = normalized.get('aws_access_key_id') or normalized.get('access_key_id')
-    secret_key = normalized.get('aws_secret_access_key') or normalized.get('secret_access_key')
-
-    if not (access_key and secret_key):
-        raise KeyError('CSV must contain AWS access and secret keys')
-
-    return boto3.client(
-        's3',
-        aws_access_key_id=access_key,
-        aws_secret_access_key=secret_key,
-    )
+    creds = load_credentials(config_path)
+    return boto3.client('s3', **creds)
 
 def upload_file(local_path: str, bucket: str, key: str):
     """Upload *local_path* to S3 at ``bucket/key`` using fresh credentials."""
