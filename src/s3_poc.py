@@ -1,4 +1,4 @@
-from aws_client import S3Client
+from data.aws.aws_client import S3Client
 from config.storage_config_loader import load_storage_config
 from botocore.exceptions import BotoCoreError, ClientError
 
