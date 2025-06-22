@@ -18,7 +18,7 @@ class S3Client:
 
     def __init__(
         self,
-        cred_src: str | Path = "configs/Server_accessKeys.csv",
+        cred_src: str | Path = "creds/Server_accessKeys.csv",
         cfg_src: str | Path = "configs/bucket.yaml",
     ) -> None:
                 # Load once at construction time

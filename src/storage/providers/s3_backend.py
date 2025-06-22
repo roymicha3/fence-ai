@@ -12,7 +12,7 @@ class S3Backend(StorageBackend):
 
     def __init__(
         self,
-        cred_src: str | Path = "configs/Server_accessKeys.csv",
+        cred_src: str | Path = "creds/Server_accessKeys.csv",
         cfg_src: str | Path = "configs/bucket.yaml",
     ) -> None:
         self._client = S3Client(cred_src=cred_src, cfg_src=cfg_src)

@@ -7,6 +7,7 @@ yarn-error.log*
 dev-debug.log
 
 configs/
+creds/
 
 # Dependency directories
 node_modules/

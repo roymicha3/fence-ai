@@ -7,12 +7,12 @@ from invoker.config_loader import load_config
 from invoker.invoker import invoke_n8n
 from invoker.payload_utils import load_json_payload, save_json_response
 
-CFG = {"cred_src": "configs/Server_accessKeys.csv", "cfg_src": "configs/bucket.yaml"}
+CFG = {"cred_src": "creds/Server_accessKeys.csv", "cfg_src": "configs/bucket.yaml"}
 backend = S3Backend(**CFG)
 
 def run_n8n_flow():
     """Trigger n8n webhook using invoker stack."""
-    cfg = load_config("n8n_config.yaml")
+    cfg = load_config("configs/n8n_config.yaml")
     try:
         payload = load_json_payload(cfg.payload_file)
     except Exception as exc:  # noqa: BLE001
