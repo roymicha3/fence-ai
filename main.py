@@ -17,14 +17,11 @@ def main() -> None:  # <= 20 lines
         print(f"[WARN] Unable to read payload: {exc}", file=sys.stderr)
         payload = {}
 
-    resp = invoke_n8n(payload, cfg.method, cfg.url, cfg.auth)
-    print(resp.status_code)
-    try:
-        body = resp.json()
-    except ValueError:
-        body = resp.text
+    body = invoke_n8n(payload, cfg.method, cfg.url, cfg.auth)
     print(body)
     save_json_response(body)
+
+    print("Done")
 
 
 if __name__ == "__main__":

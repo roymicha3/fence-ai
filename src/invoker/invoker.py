@@ -4,6 +4,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
+from client.http_client import HttpClient
 import requests
 
 
@@ -18,12 +19,16 @@ def invoke_n8n(
     if auth:
         headers["Authorization"] = auth
 
+    client = HttpClient()
     method = method.upper()
     if method == "GET":
-        return requests.get(url, params=payload, headers=headers, timeout=10)
-    if method == "POST":
-        return requests.post(url, json=payload, headers=headers, timeout=10)
-    raise ValueError(f"Unsupported HTTP method: {method}")
+        resp = requests.get(url, params=payload, headers=headers, timeout=10)
+    elif method == "POST":
+        resp = requests.post(url, json=payload, headers=headers, timeout=10)
+    else:
+        raise ValueError(f"Unsupported HTTP method: {method}")
+
+    return client._handle_response(resp)
 
 
 class PipelineInvoker(ABC):
