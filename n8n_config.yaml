@@ -1,0 +1,6 @@
+# n8n invoker configuration
+url: "http://localhost:5678/webhook-test/4816b59c-b4c3-4f90-b6e3-2144083bd9d0"
+method: "GET"
+# Leave auth blank if not required
+auth: ""
+payload_file: "n8n_payload.json"
