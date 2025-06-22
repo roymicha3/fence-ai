@@ -9,8 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from storage.providers.utils.aws_conn import S3Connection
-from creds.credentials_loader import load_credentials
-from config.storage_config_loader import load_storage_config
+from storage.creds.credentials_loader import load_credentials
+from storage.config.storage_config_loader import load_storage_config
 
 
 class S3Client:

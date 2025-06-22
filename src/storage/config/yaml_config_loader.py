@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict
 import yaml
 
-from config.config_base import BaseConfigLoader
+from storage.config.config_base import BaseConfigLoader
 
 class YAMLConfigLoader(BaseConfigLoader):
     """Parses .yml/.yaml storage configuration files."""

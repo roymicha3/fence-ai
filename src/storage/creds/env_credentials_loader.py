@@ -2,7 +2,7 @@
 import os
 from typing import Dict
 
-from creds.credentials_base import BaseCredentialsLoader
+from storage.creds.credentials_base import BaseCredentialsLoader
 
 class EnvCredentialsLoader(BaseCredentialsLoader):
     """Loads credentials from AWS-related environment variables."""

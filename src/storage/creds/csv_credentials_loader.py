@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict
 import csv
 
-from creds.credentials_base import BaseCredentialsLoader
+from storage.creds.credentials_base import BaseCredentialsLoader
 
 class CSVCredentialsLoader(BaseCredentialsLoader):
     """Loads AWS-style credentials from a CSV file allowing header variants."""

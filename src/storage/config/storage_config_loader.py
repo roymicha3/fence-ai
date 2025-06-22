@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Dict
 
-from config.yaml_config_loader import YAMLConfigLoader
+from storage.config.yaml_config_loader import YAMLConfigLoader
 
 
 def load_storage_config(source) -> Dict:
