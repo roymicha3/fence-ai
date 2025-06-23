@@ -1,4 +1,5 @@
 {
-    "field_1": "value",
-    "field_2": 1
+    "session_prefix": "test",
+    "image_name": "test.jpg",
+    "text_file_name": "test.txt"
 }

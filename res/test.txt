@@ -1,0 +1,5 @@
+rules:
+    - ignore the middle eye.
+
+    - pretend its playing tennis
+

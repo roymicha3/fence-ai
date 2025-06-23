@@ -17,15 +17,15 @@ class StorageBackend(abc.ABC):
 
     # ---------------------------- core object ops -------------------------
     @abc.abstractmethod
-    def upload_file(self, local_path: Path, remote_key: str) -> None:
+    def upload_file(self, local_path: Path, remote_key: str):
         """Upload *local_path* into the backend at *remote_key*."""
 
     @abc.abstractmethod
-    def download_file(self, remote_key: str, dest_path: Path) -> None:
+    def download_file(self, remote_key: str, dest_path: Path):
         """Download *remote_key* into *dest_path* (overwrite if exists)."""
 
     @abc.abstractmethod
-    def delete_file(self, remote_key: str) -> None:
+    def delete_file(self, remote_key: str):
         """Remove *remote_key* from the backend (no error if absent)."""
 
     # ---------------------------- optional helpers ------------------------
