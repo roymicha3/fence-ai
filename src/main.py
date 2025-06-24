@@ -7,6 +7,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from invoker.config_loader import load_config
 from invoker.invoker import N8NInvoker
 from invoker.payload_utils import load_json_payload, save_json_response
+from invoker.response_parser import print_response_info
 
 STORAGE_PATHS = \
     {
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     
     response = invoker.invoke(payload)
     
-    print(response)
+    print_response_info(response)
 
     backend.delete_file(image_dest_path)
     backend.delete_file(text_dest_path)
