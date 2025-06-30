@@ -1,4 +1,7 @@
+python-dotenv
+Pillow
 boto3
 pytest
 pyyaml
 requests
+nbformat
