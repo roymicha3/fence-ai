@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
 from client.http_client import HttpClient
-from invoker.config_loader import Config
+from invoker.invoke_config import InvokeConfig
 from invoker.response_parser import OpenAIResponseParser, OpenAIResponse
 
 
@@ -18,7 +18,7 @@ class PipelineInvoker(ABC):
 class N8NInvoker(PipelineInvoker):
     """Concrete invoker for n8n webhooks."""
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: InvokeConfig) -> None:
         self.url = config.url
         self.method = config.method.upper()
         self.auth = config.auth

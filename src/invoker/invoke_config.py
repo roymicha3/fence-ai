@@ -14,7 +14,7 @@ from omegaconf import OmegaConf, DictConfig
 
 
 @dataclass(slots=True)
-class Config:
+class InvokeConfig:
     """Normalized configuration values for the invoker."""
 
     url: str
@@ -23,8 +23,8 @@ class Config:
     payload_path: Path | None = None
 
 
-def load_config(path: str | Path | None = None) -> Config:
-    """Return a :class:`Config` built from environment variables.
+def load_config(path: str | Path | None = None) -> InvokeConfig:
+    """Return a :class:`InvokeConfig` built from environment variables.
 
     Env vars recognised:
     - ``WEBHOOK_URL``  (required)
@@ -34,7 +34,7 @@ def load_config(path: str | Path | None = None) -> Config:
     """
     conf = OmegaConf.load(path)
     
-    return Config(
+    return InvokeConfig(
         url=conf.url, 
         method=conf.method, 
         auth=conf.auth, 

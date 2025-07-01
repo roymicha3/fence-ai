@@ -4,7 +4,7 @@ import sys
 from storage.providers.s3_backend import S3Backend
 from botocore.exceptions import BotoCoreError, ClientError
 
-from invoker.config_loader import load_config
+from invoker.invoke_config import load_config
 from invoker.invoker import N8NInvoker
 from invoker.payload_utils import load_json_payload, save_json_response
 from invoker.response_parser import print_response_info
