@@ -1,0 +1,4 @@
+url: "https://your-n8n-instance.example.com/webhook/123abc"
+method: "GET"           # GET or POST
+auth: ""
+payload_path: "n8n_payload.json"

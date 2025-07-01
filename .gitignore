@@ -6,7 +6,6 @@ yarn-debug.log*
 yarn-error.log*
 dev-debug.log
 
-configs/
 creds/
 
 # Dependency directories
