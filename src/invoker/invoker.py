@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 
 from client.http_client import HttpClient
 from invoker.invoke_config import InvokeConfig
-from invoker.response_parser import OpenAIResponseParser, OpenAIResponse
+from invoker.response_parser import parse_workflow_response, WorkflowResponse
 
 
 class PipelineInvoker(ABC):
@@ -25,7 +25,7 @@ class N8NInvoker(PipelineInvoker):
 
         self.client = HttpClient()
 
-    def invoke(self, payload: Dict[str, Any]) -> OpenAIResponse:
+    def invoke(self, payload: Dict[str, Any]) -> WorkflowResponse:
         headers = {"Content-Type": "application/json"}
         if self.auth:
             headers["Authorization"] = self.auth
@@ -41,4 +41,4 @@ class N8NInvoker(PipelineInvoker):
         if isinstance(resp, list):
             resp = resp[0]
 
-        return OpenAIResponseParser.parse(resp)
+        return parse_workflow_response(resp)

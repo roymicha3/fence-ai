@@ -7,7 +7,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from invoker.invoke_config import load_config
 from invoker.invoker import N8NInvoker
 from invoker.payload_utils import load_json_payload, save_json_response
-from invoker.response_parser import print_response_info
+from invoker.response_parser import print_workflow_response
 
 STORAGE_PATHS = \
     {
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     
     response = invoker.invoke(payload)
     
-    print_response_info(response)
+    print_workflow_response(response)
     
     
 
