@@ -24,16 +24,20 @@ if __name__ == "__main__":
     remote_dir = "test"
     source_dir = "res"
     
-    image_name = "test.jpg"
-    text_name = "test.txt"
+    first_image_name = "first_image.jpg"
+    second_image_name = "second_image.jpg"
+    text_name = "prompt.txt"
 
-    image_src_path = os.path.join(source_dir, image_name)
+    first_image_src_path = os.path.join(source_dir, first_image_name)
+    second_image_src_path = os.path.join(source_dir, second_image_name)
     text_src_path = os.path.join(source_dir, text_name)
 
-    image_dest_path = os.path.join(remote_dir, image_name)
+    first_image_dest_path = os.path.join(remote_dir, first_image_name)
+    second_image_dest_path = os.path.join(remote_dir, second_image_name)
     text_dest_path = os.path.join(remote_dir, text_name)
 
-    backend.upload_file(Path(image_src_path), image_dest_path)
+    backend.upload_file(Path(first_image_src_path), first_image_dest_path)
+    backend.upload_file(Path(second_image_src_path), second_image_dest_path)
     backend.upload_file(Path(text_src_path), text_dest_path)
     
     invoke_cfg = load_config("configs/n8n_config.yaml")
@@ -41,7 +45,7 @@ if __name__ == "__main__":
     payload = load_json_payload(invoke_cfg.payload_path)
     
     payload["session_prefix"] = remote_dir
-    payload["image_name"] = image_name
+    payload["images"] = [first_image_name, second_image_name]
     payload["text_file_name"] = text_name
 
     print(payload)
@@ -51,6 +55,9 @@ if __name__ == "__main__":
     response = invoker.invoke(payload)
     
     print_response_info(response)
+    
+    
 
-    backend.delete_file(image_dest_path)
+    backend.delete_file(first_image_dest_path)
+    backend.delete_file(second_image_dest_path)
     backend.delete_file(text_dest_path)

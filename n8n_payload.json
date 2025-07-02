@@ -1,5 +1,8 @@
 {
     "session_prefix": "test",
-    "image_name": "test.jpg",
-    "text_file_name": "test.txt"
+    "images": [ 
+        "first_image.jpg",
+        "second_image.jpg"
+    ],
+    "text_file_name": "prompt.txt"
 }

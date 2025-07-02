@@ -1,0 +1,505 @@
+This document outlines the steps and specifications for creating a realistic simulation of a fence based on provided image and model descriptions. The goal is to integrate a new fence model into an existing image while preserving all other elements.
+
+## Step 1: Define Constant Parameters
+
+Before generating the simulation, the following five fixed parameters must be entered each time:
+
+- **Fence height** (meters)
+    
+- **Infrastructure type** (wall, soil, stones)
+    
+- **Fence model**
+    
+- **Fence color**
+    
+- **Gate type** (wicket, sliding, swing)
+    
+
+---
+
+## Step 2: Describe the Image Environment and Existing Infrastructure
+
+Carefully analyze the provided image to describe its environment. Before creating the simulation, briefly detail the relevant elements:
+
+- Identify if an existing wall is present or if the installation is on soil or stones.
+    
+- Describe any slopes, height differences, curves, and angles (e.g., 90 degrees) in the infrastructure. Thoroughly analyze and describe the installation base.
+    
+- State the relative height of the wall (if present) or the stones.
+    
+- Specify whether the image is an internal view (from the yard) or an external view (from outside).
+    
+- Determine if an existing fence needs replacement or if no fence is present and one needs to be added.
+    
+
+The purpose of this section is to adapt the replacement/addition method to the existing structure without altering it, except for adding or replacing the fence.
+
+---
+
+## Step 3: Prompt for Simulation Execution
+
+Replace only the existing central fence in the attached image with the new fence model selected in Step 1. Absolutely preserve all other original elements and dimensions of the image. Create a realistic, geometrically, visually, and spatially accurate simulation. Maintain the original image size without any changes in size, position, cropping, or blurring. Preserve all background and details, including buildings, paths, sidewalks, furniture, gates, objects, trees, vegetation, and any other elements.
+
+Adapt the fence replacement to the image type:
+
+- **External image:** The fence will be placed solely in the central garden area, with no changes to other areas.
+    
+- **Internal image:** The fence will run precisely along the existing wall or ground line, following its contours and angles.
+    
+
+---
+
+## Adapt Fence Addition to Existing Infrastructure Type
+
+Pay close attention to the infrastructure type selected in Step 1 and follow the specific guidelines below:
+
+### Instructions for Installing a Fence on Soil
+
+**Purpose:**
+
+- To erect a fence directly on the existing soil surface, precisely adapting to the terrain and natural height differences. The fence should blend harmoniously with the natural environment, avoiding a sharp separation or a straight line disconnected from the ground.
+    
+- The soil itself must remain unaltered in its natural terrain. Do not level the soil, add excessive fill material, or create deep trenches that change its natural elevation.
+    
+
+**Instructions:**
+
+1. **Full Adaptation to Terrain:** The bottom of the fence must "sit" directly on the soil, precisely following the natural and wavy elevation of the surface. Whether gentle slopes, inclines, declines, or small hills, the fence will adapt to this terrain. Do not create a straight, uniform line at the bottom of the fence that disconnects it from the soil. The fence should appear to "grow" out of the ground, blending with the topography.
+    
+2. **Preserving Natural Height Profile:** Wherever the soil changes height (e.g., an ascending or descending slope, a natural depression), the bottom of the fence must precisely adapt to this change. Consequently, the top of the fence will adjust its height accordingly, maintaining a consistent fence height (from base to top edge) or changing in a controlled manner for stepped fence sections.
+    
+3. **Fence Sections and Ground Connection:** Each fence section (e.g., a 2.4-meter panel) will be installed to start and end at the exact height corresponding to its ground points. On gentle slopes, install the fence parallel to the ground slope to avoid gaps. Do not create a fence that floats or has a significant gap between its bottom and the ground; the contact must be visually tight.
+    
+4. **Avoiding Leveling or Drastic Soil Changes:** The aim is to use the existing soil as the base. Avoid extensive leveling, deep digging, or creating straight, forced paths in the soil, except for specific drilling for fence posts. The fence will align with the natural contours of the soil, not the other way around.
+    
+5. **Handling Fence Posts:** Fence posts will be driven or secured into the soil according to stability requirements, adhering to the above principles. At anchoring points, the bottom line of the fence between the posts must also conform to the terrain.
+    
+
+### Instructions for Installing a Fence on a Wall
+
+**Purpose:**
+
+- To place the fence directly on the existing wall, precisely following its height changes (steps/breaks). Focus only on the central wall in the image, not distant or marginal walls. The wall itself must remain unchanged, emphasizing its height differences.
+    
+- The fence will be installed exactly on top of the wall, without altering the wall's dimensions (height, length, thickness, angles). Do not modify or remove the wall in any way.
+    
+- Do not add a wall where none exists!
+    
+
+**Instructions:**
+
+- The fence must "sit" directly on the existing wall, even if the wall's height is uneven.
+    
+- Wherever the wall changes height (a step down or up), the bottom of the fence must adapt. Accordingly, the top of the fence will be higher or lower.
+    
+- As a result, the top of the fence will appear stepped, conforming to the wall's contours.
+    
+- Each fence section will begin and end at a height that precisely corresponds to the top of the wall beneath it.
+    
+- Do not create a continuous fence of uniform height; each section must appear individually adapted to the wall's height.
+    
+- Crucially, no gap or air space should remain between the bottom of the fence and the wall; each section must rest precisely and parallel on the wall beneath it.
+    
+- If the wall has a slope, leave the wall as is and create the fence at the same slope, i.e., parallel to the wall.
+    
+
+### Instructions for Installing a Fence on Stones
+
+- The fence will be installed **exactly on the existing stones**, not beside them, and **without adding a wall or a straight line.**
+    
+- **Preserve the wavy line of the stones** – the bottom height of the fence will rise and fall with the height of the stone beneath it.
+    
+- Maintain the stone's path and install the fence exactly on the stones and along the same path – whether straight or curved.
+    
+- The fence will follow the upper profile of the stone row, even if there are slight slopes or arches.
+    
+- The bottom fence height may vary between each 2.4-meter section; the top fence height will adjust accordingly, ensuring the fence height precisely matches what was defined.
+    
+- Do not place the fence in the air – it must visually "sit" on the stones themselves.
+    
+
+---
+
+## Final Goal
+
+The ultimate goal is a visually, geometrically, and spatially accurate simulation, making the user feel the new fence was originally photographed with the image, with no other elements altered or manipulated. The scene should appear natural, everyday, and precise.
+
+---
+
+## Fence Characteristics - General
+
+Based on the model chosen in Step 1, create a fence according to its specific characteristics.
+
+### General Instructions
+
+Important design details depend on the selected model. Use the exact design of the chosen model, including:
+
+- **Material type:** PVC vinyl
+    
+- **Color**
+    
+- **Panel design** (dense / open / top mesh)
+    
+- **Post design**
+    
+- **Distance between posts:** Always 2.4 meters.
+    
+- **Top mesh/bars** (if present in the model)
+    
+- **Gate** (if present in the image – integrate a gate matching the model in the same location).
+    
+- **Preservation of perspective lines and angles:** Ensure the new fence adapts to the shooting angle precisely like the old fence, including perspective, light, and shadow.
+    
+- **Preservation of vegetation:** Do not remove or cut branches, vines, or flowers. Integrate the fence behind or between them.
+    
+
+---
+
+## Model Types
+
+### "Yarden" Model Characteristics
+
+- **Main Design:** Partially open fence in a minimalist style, featuring uniform, wide, and clean horizontal slats. Each slat is **7.5 cm wide and thick**, with precise **2 cm gaps**, creating a straight, clean, and uniform look. This design allows significant **light and air passage**, ideal for those seeking openness without blocking the view.
+    
+- **Frame:** A prominent perimeter frame, **15 cm thick**, reinforces the model's modern and geometric appearance.
+    
+- **Posts:**
+    
+    - **Post width:** 12.5 cm x 12.5 cm.
+        
+    - **Design:** Square posts with a minimalist **flat cap**.
+        
+    - **Height:** Posts are 10 cm higher than the fence itself.
+        
+    - **Distance between posts:** **2.4 meters** (standard between sections).
+        
+- **Vertical Stripes:** Between every two posts, a vertical stripe is located in the center of each fence section. This stripe is positioned **in the center between two posts** and is on the back of the horizontal slats. Its **width is 4 cm**, and its **depth (side thickness)** is 2 cm, similar to the horizontal slats. It connects from the bottom to the top beam of each section, spanning **full height**.
+    
+- **Available Colors:** White, beige, gray – with a matte to subtly glossy finish.
+    
+- **Maximum Height:** Up to **2.1 meters**.
+    
+- **Maximum Distance Between Posts:** **2.4 meters**.
+    
+- **Special Details:** Allows light and air penetration due to the spaced design. Ideal for demarcation without complete visual obstruction.
+    
+- **Installation Options:** Suitable for installation on a **wall, natural stones, or soil.**
+    
+
+### "Adir Open" Model Characteristics
+
+- **Main Design:** Open rustic style, based on pointed vertical slats – a classic design reminiscent of the American **"Picket Fence"**. These slats allow for **demarcation of gardens and open spaces** while maintaining a sense of space and airiness. The gaps between the slats partially expose the view, giving the fence a **friendly, warm, and welcoming** appearance.
+    
+- **Slat Type:** Full-height **vertical** square slats, **4 cm x 4 cm thick**. **Gap between slats:** **5.5 cm**, for openness. **Top Design:** Each slat ends with a **pointed or chamfered square tip**, for a characteristic decorative look.
+    
+- **Frame:**
+    
+    - **Bottom Rail:** **15 cm** high, supports and emphasizes the bottom line.
+        
+    - **Top Rail:** **10 cm** high, closes the fence cleanly.
+        
+    - Slats are threaded inside the frame and do not protrude downwards from the bottom rail.
+        
+- **Horizontal Rail - Only above a 1-meter fence:** If the fence height is over 1 meter, create a horizontal rail. Below 1 meter, do not. This middle horizontal rail is central to the fence's structure and appearance, made of a uniform white material (likely PVC).
+    
+    - **Location:** Exactly in the middle of each fence section's height, connecting all vertical planks, running from post to post.
+        
+    - **Important Note:** In cases of height differences (e.g., stepped wall, sloping ground), the horizontal rail will maintain visual continuity in a straight line along the entire fence. This means it may start at a section's middle height but end at a different height relative to the vertical planks in a sloping section, prioritizing a uniform, continuous horizontal line.
+        
+    - **Gate Emphasis:** The horizontal rail on the gate will maintain the same characteristics.
+        
+    - **Structure and Size:** **Width (horizontal):** 10 cm, providing significant visual presence. **Connection:** Vertical planks are threaded through the horizontal rail, fixed, and unable to move, greatly contributing to overall fence stability.
+        
+- **Posts:**
+    
+    - **Post width:** 12.5 cm x 12.5 cm.
+        
+    - **Design:** Square posts with a minimalist **flat cap**.
+        
+    - **Height:** Posts are 10 cm higher than the fence itself.
+        
+    - **Distance between posts:** **2.4 meters** (standard between sections).
+        
+- **Available Colors:** Classic white with a matte to subtly glossy finish.
+    
+- **Maximum Height:** Up to **1.8 meters**.
+    
+- **Installation:** Possible on a **concrete wall, direct soil, or a combination with natural stones.**
+    
+
+### "Adir Closed" Model Characteristics
+
+- **Main Design:** A **classically rustic-designed** fence with a representative, classic, and pleasing appearance, but with **straight vertical slats (not pointed)**, giving it a slightly more modern or neutral look than the traditional American "picket."
+    
+- **Slat Type:** Full-height **vertical** square slats, **4 cm x 4 cm thick**. **Gap between slats:** **5.5 cm**, for openness. Not pointed at the end but finished with a straight cut – a simple and clean design.
+    
+- **Frame:**
+    
+    - **Horizontal top rail 10 cm wide and bottom rail 15 cm wide** – enclosing the row of slats, which do not protrude from the frame.
+        
+    - **Bottom Rail:** **15 cm** high, supporting and emphasizing the bottom line.
+        
+    - **Top Rail:** **15 cm** high, closing the fence in a classic, clean manner.
+        
+    - The frame provides stability and uniformity with a precise and clean finish.
+        
+- **Horizontal Rail - Only above a 1-meter fence:** (Same as "Adir Open" model description).
+    
+- **Posts:**
+    
+    - **Post width:** 12.5 cm x 12.5 cm.
+        
+    - **Height:** Posts are 10 cm higher than the fence itself.
+        
+    - **Design:** Square posts with a minimalist **flat cap**.
+        
+    - **Distance between posts:** **2.4 meters** (standard between sections).
+        
+- **Available Colors:** Classic white with a matte to subtly glossy finish.
+    
+- **Maximum Height:** Up to **1.8 meters**.
+    
+- **Installation:** Possible on a **concrete wall, direct soil, or a combination with natural stones.**
+    
+
+### "Adiram Open" Model Characteristics
+
+- **Main Design:** Open rustic style, based on pointed vertical slats – a classic design identified with the American **"Picket Fence"**. These slats allow for **demarcation of gardens and open spaces** while maintaining a sense of space and airiness. The gaps between the slats partially expose the view, giving the fence a **friendly, warm, and welcoming** appearance.
+    
+- **Slat Type:** Full-height **vertical** rectangular slats, **7.5 cm wide** by 2 cm. **Gap between slats:** **3.5 cm**. **Top Design:** Each slat ends with a **pointed or flat chamfered tip**, for a characteristic decorative look.
+    
+- **Frame:**
+    
+    - **Bottom Rail:** **15 cm** high, supports and emphasizes the bottom line.
+        
+    - **Top Rail:** **10 cm** high, closes the fence cleanly.
+        
+    - Slats are threaded inside the frame and do not protrude downwards from the bottom rail.
+        
+- **Horizontal Rail - Only above a 1-meter fence:** (Same as "Adir Open" model description).
+    
+- **Posts:**
+    
+    - **Post width:** 12.5 cm x 12.5 cm.
+        
+    - **Design:** Square posts with a minimalist **flat cap**.
+        
+    - **Height:** Posts are 10 cm higher than the fence itself.
+        
+    - **Distance between posts:** **2.4 meters** (standard between sections).
+        
+- **Available Colors:** Classic white with a matte to subtly glossy finish.
+    
+- **Maximum Height:** Up to **2.1 meters**.
+    
+- **Installation:** Possible on a **concrete wall, direct soil, or a combination with natural stones.**
+    
+
+### "Adiram Closed" Model Characteristics
+
+- **Main Design:** A **classically rustic-designed** fence with a representative, classic, and pleasing appearance, but with **straight vertical slats (not pointed)**, giving it a slightly more modern or neutral look than the traditional American "picket."
+    
+- **Slat Type:** Full-height **vertical** rectangular slats, **7.5 cm wide** by 2 cm. **Gap between slats:** **3.5 cm**, for openness. Not pointed at the end but finished with a straight cut – a simple and clean design.
+    
+- **Frame:**
+    
+    - **Horizontal top rail 10 cm wide and bottom rail 15 cm wide** – enclosing the row of slats, which do not protrude from the frame.
+        
+    - **Bottom Rail:** **15 cm** high, supporting and emphasizing the bottom line.
+        
+    - **Top Rail:** **15 cm** high, closing the fence in a classic, clean manner.
+        
+    - The frame provides stability and uniformity with a precise and clean finish.
+        
+- **Horizontal Rail - Only above a 1-meter fence:** (Same as "Adir Open" model description).
+    
+- **Posts:**
+    
+    - **Post width:** 12.5 cm x 12.5 cm.
+        
+    - **Height:** Posts are 10 cm higher than the fence itself.
+        
+    - **Design:** Square posts with a minimalist **flat cap**.
+        
+    - **Distance between posts:** **2.4 meters** (standard between sections).
+        
+- **Available Colors:** Classic white with a matte to subtly glossy finish.
+    
+- **Maximum Height:** Up to **1.8 meters**.
+    
+- **Installation:** Possible on a **concrete wall, direct soil, or a combination with natural stones.**
+    
+
+### "Gilboa" Model Characteristics
+
+- **Main Design:** The fence combines a **partially opaque lower section** with a decorative upper part, adding aesthetic interest and softening the enclosed feeling. It is particularly suitable for those desiring high privacy with an open decorative touch.
+    
+- **Lower Section:** Smooth, **vertical**, completely opaque panels with a straight and smooth finish. Each panel is **11 cm wide**, providing a sense of enclosure, privacy, and isolation.
+    
+- **Upper Section (Diamond Lattice):** A decorative element in the form of a **diagonal lattice (X)**, also known as _Lattice_. It allows partial light penetration and creates an elegant, airy look. The lattice is **22 cm** of the total fence height.
+    
+- **Frame:**
+    
+    - **Horizontal bottom and middle rails** are **14 cm wide**, enclosing the lower section.
+        
+    - A **horizontal top rail 14 cm wide** encloses the upper section (diamond lattice).
+        
+- **Posts:**
+    
+    - **Square posts with a classic design** and a **prominent flat cap** add a sense of framing and presence.
+        
+    - Post size: 12.5 cm x 12.5 cm.
+        
+    - **Height:** Posts are 10 cm higher than the fence itself.
+        
+    - The distance between posts is standard – **2.4 meters**.
+        
+    - Color matches the rest of the fence.
+        
+- **Colors:** White, beige, gray – with a matte to subtly glossy finish.
+    
+- **Maximum Height:** Up to **2.1 meters**.
+    
+- **Installation:** Possible on a **concrete wall, direct soil, or a combination with natural stones.**
+    
+
+### "Hermon" Model Characteristics
+
+- **Main Design:** A **completely opaque** fence, specifically designed for absolute privacy. The entire fence, from base to top, consists of adjacent, opaque panels with no gaps or openings, fully blocking visibility from both sides. Ideal for areas requiring complete separation and maximum isolation, such as rear property lines or service areas.
+    
+- **Vertical Panels:** Composed of adjacent vertical panels. Each panel has a uniform width of **11 cm**. The panels are full height, from the bottom to the top rail. The surface is smooth with a matte finish.
+    
+- **Perimeter Frame:** Includes straight and clean horizontal bottom and top rails. These enclosing rails are **14 cm thick**, adding stability and design cleanliness.
+    
+- **Posts:** Massive square posts, **12.5 cm x 12.5 cm**, located approximately every **2.4 meters**. Each post ends with a **straight and prominent decorative cap** with a flat finish. The posts are 10 cm higher than the fence itself.
+    
+- **Available Colors:** White, beige, gray – with a matte to subtly glossy finish.
+    
+- **Maximum Height:** Up to **2.1 meters**.
+    
+- **Special Details:** Model provides complete privacy.
+    
+- **Installation:** Possible on a **concrete wall, direct soil, or a combination with natural stones.**
+    
+
+### "Carmel Closed" Model Characteristics
+
+- **Main Design:** The lower part of the fence is opaque, made of smooth, white vertical panels. The upper part features an open section with **short, vertical bars** of uniform height, creating square "windows" that give an airy appearance.
+    
+- **Main Components:**
+    
+    - **Lower Section:** Smooth-finish vertical panels, **11 cm wide**. They are close together with no gaps, providing privacy at the base of the fence.
+        
+    - **Open Upper Section:** Short vertical bars, arranged at equal intervals. Full-height **vertical** rectangular slats, **7.5 cm wide** by 2 cm. **Gap between slats:** **3.5 cm**, creating openness. Not pointed at the end but finished with a straight cut – a simple and clean design. These allow light and some view to penetrate while maintaining an elegant design line.
+        
+- **Posts:** Massive square posts, **12.5 cm x 12.5 cm**, located approximately every **2.4 meters**. Each post ends with a **straight and prominent decorative cap** with a flat finish. The posts are 10 cm higher than the fence itself.
+    
+- **Frames:** Horizontal top and bottom rails, **14 cm wide**, enclose all fence sections. Additionally, a **14 cm wide rail** separates the closed lower part from the open upper part.
+    
+- **Available Colors:** White, beige, gray – with a matte to subtly glossy finish.
+    
+- **Maximum Height:** Up to **2.1 meters**.
+    
+- **Installation:** Possible on a **concrete wall, direct soil, or a combination with natural stones.**
+    
+
+### "Carmel Open" Model Characteristics
+
+- **Main Design:** The lower part of the fence is opaque, made of smooth, white vertical panels.
+    
+- **Upper Section – Decorative Pointed Railing:** Thin vertical bars, approximately **7.5 cm wide**, of short height. They end with a **pointed triangular tip (picket style)**, sometimes called "teeth" or "arrowheads." Measured and equal spacing contributes to airiness and a light appearance while maintaining clear demarcation.
+    
+- **Main Components:**
+    
+    - **Lower Panels:** Smooth-finish vertical panels, **11 cm wide**. Close together with no gaps, providing privacy at the base of the fence.
+        
+    - **Open Upper Section:** Short vertical bars, arranged at equal intervals. Constant height of **40 cm**. Full-height **vertical** rectangular slats, **7.5 cm wide** by 2 cm. **Gap between slats:** **3.5 cm**, creating openness. They end with a **pointed triangular tip (picket style)**, sometimes called "teeth" or "arrowheads."
+        
+- **Posts:** Massive square posts, **12.5 cm x 12.5 cm**, located approximately every **2.4 meters**. Each post ends with a **straight and prominent decorative cap** with a flat finish. The posts are 10 cm higher than the fence itself.
+    
+- **Frames:** Horizontal top and bottom rails, **14 cm wide**, enclose all fence sections. Additionally, a **14 cm wide rail** separates the closed lower part from the open upper part. A horizontal rail, **10 cm wide**, is located in the center of the open part, protruding inwards.
+    
+- **Available Colors:** White, beige, gray – with a matte to subtly glossy finish.
+    
+- **Maximum Height:** Up to **2.1 meters**.
+    
+- **Installation:** Possible on a **concrete wall, direct soil, or a combination with natural stones.**
+    
+
+### "High-Tech" Model Characteristics
+
+- **General Design:** A **semi-opaque** fence with narrow, measured spaced slats. Features horizontal, straight, and clean lines. **Louvered style** – slightly angled slats allowing ventilation while limiting direct visibility.
+    
+- **Fence Slats:**
+    
+    - **Horizontal Slats:** **Narrow and elongated** panels, **3.8 cm wide**, extending from post to post (2.4 m).
+        
+    - Constant gap between each slat – **2 cm**.
+        
+    - The slats are **attached to the frame** and enclosed by perimeter rails for a neat and aesthetic appearance.
+        
+- **Fence Frame:** The top and bottom edges are enclosed by **horizontal rails, 14 cm wide**, with a straight and meticulous finish.
+    
+- **Posts:** **Square** posts, **12.5 cm x 12.5 cm**. Each post ends with a **flat decorative cap**. Distance between posts – **2.4 meters**. The posts are 10 cm higher than the fence itself.
+    
+
+---
+
+## Gate Placement in the Simulation
+
+### Gate Location
+
+- **Existing Gate:** If a gate is described in the original environment, replace it with the new gate according to the chosen type and dimensions. Ensure the new gate integrates naturally.
+    
+- **No Existing Gate:** If no gate exists, place the selected model's gate in a logical and functional location for desired access. For example:
+    
+    - **Pedestrian Gate (Wicket):** At a walkway entrance, stairs to a front door, or a narrow fence opening for single person passage.
+        
+    - **Vehicle Gate (Sliding or Swing):** At a driveway entrance, parking area, storage space, or any opening wide enough for vehicle passage.
+        
+- **Important Note:** If "**No Gate**" was selected in the Gate Type step, **do not place any gate in the simulation.**
+    
+
+### Gate Style
+
+The gate will be of the **same design style, materials, and colors** as the selected fence model. Maintain the following characteristics for the gate model based on the chosen fence model: main design, slat type, upper part, lower part, fence slats, fence frame. Post size is **12.5 cm x 12.5 cm**, but the distance between them varies by gate type (detailed below).
+
+### Gate Type and Precise Dimensions
+
+Choose one of the following gate types. If specific dimensions different from those defined here are provided, use those instead.
+
+- **Pedestrian Gate (Wicket)**
+    
+    - **Description:** A narrow gate for single person passage.
+        
+    - **Default Dimensions:**
+        
+        - **Width:** 1 meter
+            
+        - **Height:** 1.8 meters
+            
+    - **Handle:** A matte black metal handle, 18 cm long, with a slightly "rustic" or "antique" appearance. It is elongated with wide, outwardly curved ends (like a decorative "flower" or "point") at the top and bottom. The central gripping part is thickened and rounded, comfortable to hold, and 3 cm wide. Adjacent to the handle, on the left side, there is a simple black plastic latch. The handle and latch are mounted on the gate posts. The handle's position is in the upper third of the wicket gate.
+        
+- **Vehicle Gate (Swing)**
+    
+    - **Description:** A large gate opening inward or outward via two (or more) leaves that meet in the center.
+        
+    - **Default Dimensions:**
+        
+        - **Width:** 3.5 meters
+            
+        - **Height:** 1.8 meters
+            
+- **Vehicle Gate (Sliding)**
+    
+    - **Description:** A large gate opening by sliding horizontally along the fence, usually on a track.
+        
+    - **Default Dimensions:**
+        
+        - **Length:** 4 meters (refers to the width of the opening the gate covers when closed)
+            
+        - **Height:** 1.5 meters
+            
+- **No Gate**
+    
+    - **Description:** The simulation will include the described environment and the selected fence without any gate.

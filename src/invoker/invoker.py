@@ -31,10 +31,10 @@ class N8NInvoker(PipelineInvoker):
             headers["Authorization"] = self.auth
         
         if self.method == "GET":
-            resp = self.client.get(self.url, params=payload, headers=headers, timeout=30)
+            resp = self.client.get(self.url, params=payload, headers=headers, timeout=240)
         
         elif self.method == "POST":
-            resp = self.client.post(self.url, json=payload, headers=headers, timeout=30)
+            resp = self.client.post(self.url, json=payload, headers=headers, timeout=240)
         else:
             raise ValueError(f"Unsupported HTTP method: {self.method}")
 
