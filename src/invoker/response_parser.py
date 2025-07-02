@@ -1,20 +1,26 @@
 from dataclasses import dataclass
 from typing import List, Optional, Union
 import json
+from datetime import datetime
 
 
 @dataclass
 class ErrorResponse:
     success: bool
     error: str
-    timestamp: str
+    timestamp: Optional[str] = None
+    status_code: Optional[int] = None
     
     @classmethod
     def from_dict(cls, data: dict) -> 'ErrorResponse':
+        # Handle various error response formats gracefully
+        current_time = datetime.now().isoformat()
+        
         return cls(
-            success=data['success'],
-            error=data['error'],
-            timestamp=data['timestamp']
+            success=data.get('success', False),
+            error=data.get('error', data.get('message', 'Unknown error')),
+            timestamp=data.get('timestamp', current_time),
+            status_code=data.get('status_code')
         )
 
 

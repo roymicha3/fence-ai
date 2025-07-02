@@ -8,6 +8,7 @@ from invoker.invoke_config import load_config
 from invoker.invoker import N8NInvoker
 from invoker.payload_utils import load_json_payload, save_json_response
 from invoker.response_parser import print_workflow_response
+from invoker.save_utils import save_workflow_output
 
 STORAGE_PATHS = \
     {
@@ -56,8 +57,11 @@ if __name__ == "__main__":
     
     print_workflow_response(response)
     
+    # Save response and images to session directory
+    save_results = save_workflow_output(response, remote_dir)
+    print(f"\nSaved response and images to: {save_results['session_dir']}")
+    print(f"Images saved: {save_results['image_count']}")
     
-
     backend.delete_file(first_image_dest_path)
     backend.delete_file(second_image_dest_path)
     backend.delete_file(text_dest_path)
