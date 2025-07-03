@@ -8,7 +8,7 @@ Google Drive.
 ## Features
 * 🗂  **StorageBackend ABC** – single, simple contract for all providers.
 * ☁️  **S3Backend** – reference implementation using per-call boto3 clients.
-* 📄  YAML / CSV loaders for bucket configuration and credentials.
+* 📄  YAML for bucket configuration and .env for credentials.
 * 🏃  End-to-end PoC script (`src/main.py`) proving the flow.
 
 ## Project Layout
@@ -26,7 +26,7 @@ src/
   main.py              # Demo runner
 configs/
   bucket.yaml          # Bucket name + region
-  Server_accessKeys.csv# AWS credentials (CSV) – **not committed**
+  .env               # AWS credentials (environment variables) – **not committed**
 ```
 
 ## Quickstart
@@ -42,8 +42,11 @@ configs/
       name: my-bucket
       region: us-east-1
       ```
-    * `configs/Server_accessKeys.csv` – AWS access & secret keys exported from
-      the console (not tracked in git).
+    * `.env` file in project root with AWS credentials:
+      ```
+      AWS_ACCESS_KEY_ID=your_access_key_here
+      AWS_SECRET_ACCESS_KEY=your_secret_key_here
+      ```
 3.  **Run demo**:
     ```bash
     echo "hello" > demo.txt

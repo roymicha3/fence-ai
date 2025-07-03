@@ -6,10 +6,12 @@ beyond the scope of a single operation.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
+import dotenv
+
 from storage.providers.utils.aws_conn import S3Connection
-from storage.creds.credentials_loader import load_credentials
 from storage.config.storage_config_loader import load_storage_config
 
 
@@ -18,11 +20,22 @@ class S3Client:
 
     def __init__(
         self,
-        cred_src: str | Path = "creds/Server_accessKeys.csv",
+        env_file: str | Path = ".env",
         cfg_src: str | Path = "configs/bucket.yaml",
     ) -> None:
-                # Load once at construction time
-        self._creds = load_credentials(cred_src)
+        # Load environment variables from .env file
+        env_path = Path(env_file)
+        if env_path.exists():
+            dotenv.load_dotenv(env_path)
+        else:
+            dotenv.load_dotenv()
+            
+        # Get AWS credentials directly from environment
+        self._creds = {
+            "aws_access_key_id": os.environ["AWS_ACCESS_KEY_ID"],
+            "aws_secret_access_key": os.environ["AWS_SECRET_ACCESS_KEY"],
+        }
+        
         cfg = load_storage_config(cfg_src)
         self._region = cfg.get("region")
         self._bucket_default = cfg.get("name")

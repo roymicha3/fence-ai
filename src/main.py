@@ -12,7 +12,7 @@ from invoker.save_utils import save_workflow_output
 
 STORAGE_PATHS = \
     {
-        "cred_src": "creds/Server_accessKeys.csv",
+        "env_file": ".env",
         "cfg_src": "configs/bucket.yaml"
     }
 

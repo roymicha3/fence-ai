@@ -12,10 +12,10 @@ class S3Backend(StorageBackend):
 
     def __init__(
         self,
-        cred_src: str | Path = "creds/Server_accessKeys.csv",
+        env_file: str | Path = ".env",
         cfg_src: str | Path = "configs/bucket.yaml",
     ) -> None:
-        self._client = S3Client(cred_src=cred_src, cfg_src=cfg_src)
+        self._client = S3Client(env_file=env_file, cfg_src=cfg_src)
         # default bucket from the YAML config (private attr but acceptable for PoC)
         self._bucket = self._client._bucket_default  # type: ignore[attr-defined]
 
