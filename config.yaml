@@ -1,0 +1,17 @@
+# Root-level defaults
+default_provider: s3
+
+# Storage providers configuration
+storage:
+  s3:
+    provider: s3
+    name: fence-ai
+    region: eu-north-1
+
+# Workflow configuration
+workflow:
+  n8n:
+    url: http://localhost:5678/webhook-test/analyze-session
+    method: GET
+    auth: ""
+    payload_path: n8n_payload.json

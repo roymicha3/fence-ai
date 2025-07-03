@@ -18,10 +18,10 @@ class PipelineInvoker(ABC):
 class N8NInvoker(PipelineInvoker):
     """Concrete invoker for n8n webhooks."""
 
-    def __init__(self, config: InvokeConfig) -> None:
-        self.url = config.url
-        self.method = config.method.upper()
-        self.auth = config.auth
+    def __init__(self, config: dict) -> None:
+        self.url = config["url"]
+        self.method = config["method"].upper()
+        self.auth = config["auth"]
 
         self.client = HttpClient()
 

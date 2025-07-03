@@ -4,21 +4,26 @@ import sys
 from storage.providers.s3_backend import S3Backend
 from botocore.exceptions import BotoCoreError, ClientError
 
-from invoker.invoke_config import load_config
+from omegaconf import OmegaConf
+
 from invoker.invoker import N8NInvoker
 from invoker.payload_utils import load_json_payload, save_json_response
 from invoker.response_parser import print_workflow_response
 from invoker.save_utils import save_workflow_output
 
-STORAGE_PATHS = \
-    {
-        "env_file": ".env",
-        "cfg_src": "configs/bucket.yaml"
-    }
-
-
 if __name__ == "__main__":
-    backend = S3Backend(**STORAGE_PATHS)
+    # Load configuration
+    config = OmegaConf.load("config.yaml")
+    
+    # Validate config structure
+    if not hasattr(config, "storage") or not hasattr(config.storage, "s3"):
+        raise ValueError("Config missing required storage.s3 section")
+    
+    if not hasattr(config, "workflow") or not hasattr(config.workflow, "n8n"):
+        raise ValueError("Config missing required workflow.n8n section")
+    
+    # Initialize backend with .env and specific config section
+    backend = S3Backend(env_file=".env", config=config.storage.s3)
 
     # upload file
 
@@ -41,9 +46,13 @@ if __name__ == "__main__":
     backend.upload_file(Path(second_image_src_path), second_image_dest_path)
     backend.upload_file(Path(text_src_path), text_dest_path)
     
-    invoke_cfg = load_config("configs/n8n_config.yaml")
+    # Get n8n workflow configuration
+    workflow_cfg = config.workflow.n8n
     
-    payload = load_json_payload(invoke_cfg.payload_path)
+    # Convert to dict for compatibility
+    workflow_cfg_dict = OmegaConf.to_container(workflow_cfg)
+    
+    payload = load_json_payload(workflow_cfg.payload_path)
     
     payload["session_prefix"] = remote_dir
     payload["images"] = [first_image_name, second_image_name]
@@ -51,7 +60,7 @@ if __name__ == "__main__":
 
     print(payload)
 
-    invoker = N8NInvoker(invoke_cfg)
+    invoker = N8NInvoker(workflow_cfg_dict)
     
     response = invoker.invoke(payload)
     

@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional, Dict, Any
+
+from omegaconf import DictConfig
 
 from storage.providers.utils.aws_client import S3Client
 from storage.base import StorageBackend
@@ -13,9 +16,9 @@ class S3Backend(StorageBackend):
     def __init__(
         self,
         env_file: str | Path = ".env",
-        cfg_src: str | Path = "configs/bucket.yaml",
+        config: Optional[DictConfig] = None
     ) -> None:
-        self._client = S3Client(env_file=env_file, cfg_src=cfg_src)
+        self._client = S3Client(env_file=env_file, config=config)
         # default bucket from the YAML config (private attr but acceptable for PoC)
         self._bucket = self._client._bucket_default  # type: ignore[attr-defined]
 

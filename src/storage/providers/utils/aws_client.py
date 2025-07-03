@@ -8,11 +8,12 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Optional, Dict, Any
 
 import dotenv
+from omegaconf import DictConfig
 
 from storage.providers.utils.aws_conn import S3Connection
-from storage.config.storage_config_loader import load_storage_config
 
 
 class S3Client:
@@ -21,7 +22,7 @@ class S3Client:
     def __init__(
         self,
         env_file: str | Path = ".env",
-        cfg_src: str | Path = "configs/bucket.yaml",
+        config: Optional[DictConfig] = None
     ) -> None:
         # Load environment variables from .env file
         env_path = Path(env_file)
@@ -36,9 +37,12 @@ class S3Client:
             "aws_secret_access_key": os.environ["AWS_SECRET_ACCESS_KEY"],
         }
         
-        cfg = load_storage_config(cfg_src)
-        self._region = cfg.get("region")
-        self._bucket_default = cfg.get("name")
+        # Get storage configuration from provided config
+        if config is None:
+            raise ValueError("S3 configuration is required")
+            
+        self._region = config.get("region")
+        self._bucket_default = config.get("name")
 
     # ------------------------------------------------------------------
     def upload_file(self, local_path: str | Path, bucket: str, key: str) -> None:
