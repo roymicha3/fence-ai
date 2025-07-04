@@ -1,5 +1,3 @@
-# Root-level defaults
-default_provider: s3
 
 # Storage providers configuration
 storage:

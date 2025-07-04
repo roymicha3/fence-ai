@@ -1,4 +1,0 @@
-url: "http://localhost:5678/webhook-test/analyze-session"
-method: "GET"           # GET or POST
-auth: ""
-payload_path: "n8n_payload.json"
