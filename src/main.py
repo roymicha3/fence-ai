@@ -10,10 +10,12 @@ from invoker.invoker import N8NInvoker
 from invoker.payload_utils import load_json_payload, save_json_response
 from invoker.response_parser import print_workflow_response
 from invoker.save_utils import save_workflow_output
+from session.session import Session
 
-if __name__ == "__main__":
+
+def run_session(session: Session) -> None:
     # Load configuration
-    config = OmegaConf.load("config.yaml")
+    config = OmegaConf.load(session.data_dir / "config.yaml")
     
     # Validate config structure
     if not hasattr(config, "storage") or not hasattr(config.storage, "s3"):
@@ -27,8 +29,12 @@ if __name__ == "__main__":
 
     # upload file
 
-    remote_dir = "test"
-    source_dir = "res"
+    # local directory for saving workflow output
+    session_local_dir = session.prefix / Path("outputs")
+    session_local_dir.mkdir(parents=True, exist_ok=True)
+
+    remote_dir = Path(session.prefix)  # S3 key prefix
+    source_dir = session.data_dir / "res"
     
     first_image_name = "first_image.jpg"
     second_image_name = "second_image.jpg"
@@ -67,10 +73,22 @@ if __name__ == "__main__":
     print_workflow_response(response)
     
     # Save response and images to session directory
-    save_results = save_workflow_output(response, remote_dir)
+    save_results = save_workflow_output(response, session_local_dir)
     print(f"\nSaved response and images to: {save_results['session_dir']}")
     print(f"Images saved: {save_results['image_count']}")
     
     backend.delete_file(first_image_dest_path)
     backend.delete_file(second_image_dest_path)
     backend.delete_file(text_dest_path)
+    
+
+
+if __name__ == "__main__":
+    
+    parent_session = Session(name="test_session")
+    
+    # start session
+    session = Session(parent=parent_session,
+                      resources=[Path("res"), Path("config.yaml")])
+    
+    run_session(session)

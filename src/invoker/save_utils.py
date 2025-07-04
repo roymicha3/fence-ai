@@ -28,7 +28,7 @@ def create_session_directory(session_prefix: str) -> Path:
     outputs_dir.mkdir(exist_ok=True)
     
     # Create session directory
-    session_dir = outputs_dir / session_prefix
+    session_dir = Path(session_prefix) / outputs_dir
     session_dir.mkdir(exist_ok=True)
     
     return session_dir
@@ -127,18 +127,18 @@ def save_images(response: SuccessResponse, session_dir: Path) -> List[Path]:
     return saved_paths
 
 
-def save_workflow_output(response: WorkflowResponse, session_prefix: str) -> Dict[str, Any]:
+def save_workflow_output(response: WorkflowResponse, session_dir: Path) -> Dict[str, Any]:
     """Main function to save both response and images.
     
     Args:
         response: The parsed workflow response
-        session_prefix: The session identifier
+        session_dir: Path to the session-specific output directory
         
     Returns:
         Dictionary with paths and metadata about saved files
     """
-    # Create session directory
-    session_dir = create_session_directory(session_prefix)
+    # Ensure session directory exists
+    session_dir.mkdir(parents=True, exist_ok=True)
     
     # Save response
     response_path = save_response(response, session_dir)
